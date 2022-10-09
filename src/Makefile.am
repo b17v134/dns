@@ -1,2 +1,2 @@
 lib_DNS=libdns
-libdns_sources = dns.c
+libdns_SOURCES = dns.c
