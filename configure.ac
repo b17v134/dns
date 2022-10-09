@@ -1,0 +1,6 @@
+AC_INIT([dns], [0.0.1], [b17v134])
+AM_INIT_AUTOMAKE
+AC_PROG_CC
+AC_CONFIG_FILES([Makefile src/Makefile])
+LT_INIT
+AC_OUTPUT
