@@ -5,6 +5,6 @@ libdns_la_LDFLAGS = -module -avoid-version -export-dynamic
 
 bin_PROGRAMS = resolv
 resolv_DEPENDENCIES=libdns.la
-resolv_SOURCES = main.c
+resolv_SOURCES = resolv.c
 resolv_CFLAGS=-I${top_srcdir}/include
 resolv_LDADD = -ldns
