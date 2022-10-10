@@ -67,6 +67,10 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    if (help_flag) {
+        print_usage();
+    }
+
     if (verbose_flag)
         puts ("verbose flag is set");
     
@@ -92,8 +96,11 @@ void print_version() {
 
 void print_usage() {
     puts("Usage: resolv [options...] <value>\n\
+ -c, --class         Query class [default: IN]\n\
  -h, --help          Show help and exit\n\
  -s, --server <ip>   Server ip\n\
+ -p, --port <number> Port number [default: 53]\n\
+ -t, --type          Query type [default: A]\n\
  -v, --verbose       Verbose mode\n\
  -V, --version       Show version number and exit\n\
 ");
