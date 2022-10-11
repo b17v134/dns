@@ -1,8 +1,10 @@
 #include "dns.h"
+#include "dns_resolv.h"
 
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 const char* version = "0.0.1";
 
@@ -81,9 +83,13 @@ int main(int argc, char *argv[]) {
     if (optind < argc)
     {
       printf ("non-option ARGV-elements: ");
-      while (optind < argc)
-        printf ("%s ", argv[optind++]);
-      putchar ('\n');
+      while (optind < argc) {
+        char *qname = argv[optind++];
+        printf ("%s ", qname);
+        puts("resolv");
+        resolv("127.0.0.1", 53, qname);
+        putchar ('\n');
+      }
     }
 
     return 0;
