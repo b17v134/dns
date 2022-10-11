@@ -7,8 +7,15 @@ AC_PROG_INSTALL
 
 AC_PROG_CC
 AM_INIT_AUTOMAKE
-AC_CONFIG_FILES(Makefile src/Makefile)
+AC_CONFIG_FILES([
+    Makefile
+    src/Makefile 
+    tests/Makefile
+])
 AC_ENABLE_SHARED
 AC_ENABLE_STATIC
 LT_INIT
+
+PKG_CHECK_MODULES([CHECK], [check >= 0.9.6])
+
 AC_OUTPUT
