@@ -60,7 +60,6 @@ struct request
 struct response
 {
     struct header hdr;
-    int answers_count;
     struct resource_records *answers;
 };
 

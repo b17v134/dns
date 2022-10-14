@@ -18,42 +18,15 @@ uint16_t get_flags(uint8_t qr, uint8_t rd)
     return ((qr & 0b1) << 16) + ((rd & 0b1) << 8);
 }
 
-uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
+void write_uint16_t(void *buf, uint16_t value)
 {
-    uint16_t index = 0;
+    *(uint8_t *)(buf) = (value & 0xFF00) >> 8;
+    *(uint8_t *)(buf + 1) = value & 0xFF;
+}
 
-    srand(time(NULL));
-
-    struct header r;
-    memset(&r, 0, sizeof(struct header));
-    r.id = rand() % 0b1111111111111111;
-    r.qr = 1;
-    r.rd = 1;
-    printf("r.id = %x\n", r.id);
-    uint16_t flags = get_flags(1, 1);
-    printf("flag = %x\n", flags);
-    r.qdcount = 1;
-    r.ancount = 0;
-    r.nscount = 0;
-    r.arcount = 0;
-    puts("init request");
-    // Write id.
-    // memcpy(buf, &r.id, 2);
-    *(uint8_t *)(buf) = (r.id & 0xFF00) >> 8;
-    *(uint8_t *)(buf + 1) = r.id & 0xFF;
-    // Write flags
-    // memcpy(buf + 2, &r.flags, 2);
-    *(uint8_t *)(buf + 2) = (flags & 0xFF00) >> 8;
-    *(uint8_t *)(buf + 3) = flags & 0xFF;
-    // memcpy(buf + 4, &(r.qdcount & 0xFF00), 1);
-    *(uint8_t *)(buf + 4) = (r.qdcount & 0xFF00) >> 8;
-    *(uint8_t *)(buf + 5) = r.qdcount & 0xFF;
-    memcpy(buf + 6, &r.ancount, 2);
-    memcpy(buf + 8, &r.nscount, 2);
-    memcpy(buf + 10, &r.arcount, 2);
-    puts("buffered header");
-    // Write question.
-    int length = strlen(question->qname);
+int write_qname(void *buf, char *qname)
+{
+    int length = strlen(qname);
 
     // Write qname.
     int prev = 0;
@@ -61,24 +34,48 @@ uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
     int cur_pos = 0;
     for (int pos = 0; pos < length; pos++)
     {
-        if (question->qname[pos] == '.')
+        if (qname[pos] == '.')
         {
             size = pos - prev;
-            *(uint8_t *)(buf + 12 + cur_pos) = size;
-            memcpy(buf + 12 + cur_pos + 1, &(question->qname[prev]), size);
+            *(uint8_t *)(buf + cur_pos) = size;
+            memcpy(buf + cur_pos + 1, &(qname[prev]), size);
             prev = pos + 1;
             cur_pos += size + 1;
         }
     }
-    *(uint8_t *)(buf + 12 + cur_pos) = 0;
+    *(uint8_t *)(buf + cur_pos) = 0;
 
-    *(uint8_t *)(buf + 13 + cur_pos) = (question->qtype & 0xFF00) >> 8;
-    *(uint8_t *)(buf + 14 + cur_pos) = question->qtype & 0xFF;
+    return cur_pos;
+}
 
-    *(uint8_t *)(buf + 15 + cur_pos) = (question->qclass & 0xFF00) >> 8;
-    *(uint8_t *)(buf + 16 + cur_pos) = question->qclass & 0xFF;
+uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
+{
+    uint16_t index = 0;
+
+    srand(time(NULL));
+
+    struct header r = {};
+    memset(&r, 0, sizeof(struct header));
+    r.id = rand() % 0b1111111111111111;
+    r.qr = 1;
+    r.rd = 1;
+    uint16_t flags = get_flags(1, 1);
+    r.qdcount = 1;
+    r.ancount = 0;
+    r.nscount = 0;
+    r.arcount = 0;
+    write_uint16_t(buf, r.id);
+    write_uint16_t(buf + 2, flags);
+    write_uint16_t(buf + 4, r.qdcount);
+    write_uint16_t(buf + 6, r.ancount);
+    write_uint16_t(buf + 8, r.nscount);
+    write_uint16_t(buf + 10, r.arcount);
+    int length = write_qname(buf + 12, question->qname);
+    write_uint16_t(buf + 13 + length, question->qtype);
+    write_uint16_t(buf + 15 + length, question->qclass);
+
     puts("created request");
-    return 17 + cur_pos;
+    return 17 + length;
 }
 
 int resolv(const struct request r, char *buffer)
@@ -158,6 +155,10 @@ struct response get_response(void *buffer, int len)
     printf("result.hdr.ancount = %d\n", result.hdr.ancount);
     printf("result.hdr.nscount = %d\n", result.hdr.nscount);
     printf("result.hdr.arcount = %d\n", result.hdr.arcount);
+    // result.answers = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.ancount);
+    /*for (int i = 0; i < result.hdr.ancount; i++)
+    {
+    }*/
     return result;
 }
 
