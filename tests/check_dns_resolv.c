@@ -24,8 +24,8 @@ START_TEST(test_dns_type_to_int)
 	{
 		ck_assert_int_eq(dns_type_to_int(data[i].type), data[i].result);
 	}
-	END_TEST
 }
+END_TEST
 
 Suite *dns_resolv_suite(void)
 {

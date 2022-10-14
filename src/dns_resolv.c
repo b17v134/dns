@@ -48,34 +48,52 @@ int write_qname(void *buf, char *qname)
     return cur_pos;
 }
 
-uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
+struct header create_header()
 {
-    uint16_t index = 0;
-
     srand(time(NULL));
 
-    struct header r = {};
-    memset(&r, 0, sizeof(struct header));
-    r.id = rand() % 0b1111111111111111;
-    r.qr = 1;
-    r.rd = 1;
-    uint16_t flags = get_flags(1, 1);
-    r.qdcount = 1;
-    r.ancount = 0;
-    r.nscount = 0;
-    r.arcount = 0;
-    write_uint16_t(buf, r.id);
-    write_uint16_t(buf + 2, flags);
-    write_uint16_t(buf + 4, r.qdcount);
-    write_uint16_t(buf + 6, r.ancount);
-    write_uint16_t(buf + 8, r.nscount);
-    write_uint16_t(buf + 10, r.arcount);
-    int length = write_qname(buf + 12, question->qname);
-    write_uint16_t(buf + 13 + length, question->qtype);
-    write_uint16_t(buf + 15 + length, question->qclass);
+    struct header hdr = {};
+    memset(&hdr, 0, sizeof(struct header));
+    hdr.id = rand() % 0b1111111111111111;
+    hdr.qr = 1;
+    hdr.rd = 1;
+    hdr.qdcount = 1;
+    hdr.ancount = 0;
+    hdr.nscount = 0;
+    hdr.arcount = 0;
 
+    return hdr;
+}
+
+int write_header(void *buf, struct header h)
+{
+    uint16_t flags = get_flags(h.qr, h.rd);
+    write_uint16_t(buf, h.id);
+    write_uint16_t(buf + 2, flags);
+    write_uint16_t(buf + 4, h.qdcount);
+    write_uint16_t(buf + 6, h.ancount);
+    write_uint16_t(buf + 8, h.nscount);
+    write_uint16_t(buf + 10, h.arcount);
+
+    return 12;
+}
+
+int write_question(void *buf, struct question *q)
+{
+    int length = write_qname(buf, q->qname);
+    write_uint16_t(buf + length + 1, q->qtype);
+    write_uint16_t(buf + length + 3, q->qclass);
+
+    return length + 5;
+}
+
+uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
+{
+    struct header r = create_header();
+    int header_length = write_header(buf, r);
+    int length = write_question(buf + header_length, question);
     puts("created request");
-    return 17 + length;
+    return header_length + length;
 }
 
 int resolv(const struct request r, char *buffer)
