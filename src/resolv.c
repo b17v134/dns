@@ -103,7 +103,14 @@ int main(int argc, char *argv[])
             printf("%s ", qname);
             puts("resolv");
             struct request r = {"127.0.0.1", 53, udp, qname, type};
-            resolv(r);
+            char *buffer = malloc(sizeof(char) * 1024);
+            if (buffer == NULL)
+            {
+                perror("Cannot allocate memory");
+                exit(1);
+            }
+            int len = resolv(r, buffer);
+            struct response resp = get_response(buffer, len);
             putchar('\n');
         }
     }

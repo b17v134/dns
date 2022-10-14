@@ -29,6 +29,7 @@ uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
     r.id = rand() % 0b1111111111111111;
     r.qr = 1;
     r.rd = 1;
+    printf("r.id = %x\n", r.id);
     uint16_t flags = get_flags(1, 1);
     printf("flag = %x\n", flags);
     r.qdcount = 1;
@@ -37,8 +38,9 @@ uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
     r.arcount = 0;
     puts("init request");
     // Write id.
-    memcpy(buf, &r.id, 2);
-
+    // memcpy(buf, &r.id, 2);
+    *(uint8_t *)(buf) = (r.id & 0xFF00) >> 8;
+    *(uint8_t *)(buf + 1) = r.id & 0xFF;
     // Write flags
     // memcpy(buf + 2, &r.flags, 2);
     *(uint8_t *)(buf + 2) = (flags & 0xFF00) >> 8;
@@ -79,15 +81,14 @@ uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
     return 17 + cur_pos;
 }
 
-void resolv(const struct request r)
+int resolv(const struct request r, char *buffer)
 {
     int sockfd;
-    char buffer[BUF];
     struct sockaddr_in servaddr;
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     {
         perror("socket creation failed");
-        return;
+        return -1;
     }
     printf("addr = %s\n", r.addr);
     printf("port = %d\n", r.port);
@@ -127,8 +128,37 @@ void resolv(const struct request r)
     n = recvfrom(sockfd, (char *)buffer, BUF, MSG_WAITALL, (struct sockaddr *)&servaddr, &len);
     buffer[n] = '\0';
     printf("Server : %d\n", n);
-
     close(sockfd);
+    return n;
+}
+
+struct response get_response(void *buffer, int len)
+{
+    puts("");
+    for (int i = 0; i < len; i++)
+    {
+        printf("%02x ", *(uint8_t *)(buffer + i));
+    }
+    puts("");
+    for (int i = 0; i < len; i++)
+    {
+        printf("%c", *(char *)(buffer + i));
+    }
+    puts("");
+    struct response result = {0};
+
+    result.hdr.id = (*(uint8_t *)(buffer + 0)) * 0x100 + (*(uint8_t *)(buffer + 1));
+    uint16_t flags = (*(uint8_t *)(buffer + 2)) * 0x100 + (*(uint8_t *)(buffer + 3));
+    result.hdr.qdcount = (*(uint8_t *)(buffer + 4)) * 0x100 + (*(uint8_t *)(buffer + 5));
+    result.hdr.ancount = (*(uint8_t *)(buffer + 6)) * 0x100 + (*(uint8_t *)(buffer + 7));
+    result.hdr.nscount = (*(uint8_t *)(buffer + 8)) * 0x100 + (*(uint8_t *)(buffer + 9));
+    result.hdr.arcount = (*(uint8_t *)(buffer + 10)) * 0x100 + (*(uint8_t *)(buffer + 11));
+    printf("result.hdr.id = %x\n", result.hdr.id);
+    printf("result.hdr.qdcount = %d\n", result.hdr.qdcount);
+    printf("result.hdr.ancount = %d\n", result.hdr.ancount);
+    printf("result.hdr.nscount = %d\n", result.hdr.nscount);
+    printf("result.hdr.arcount = %d\n", result.hdr.arcount);
+    return result;
 }
 
 void strupr(const char *str, char *result)

@@ -4,20 +4,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-enum protocol
-{
-    tcp,
-    udp,
-};
-
-struct request
-{
-    char *addr;
-    uint16_t port;
-    enum protocol pr;
-    char *qname;
-    uint16_t type;
-};
+#define DNS_TYPE_ERROR 0
+#define DNS_TYPE_A 1
+#define DNS_TYPE_NS 2
+#define DNS_TYPE_MD 3
 
 // https://www.rfc-editor.org/rfc/rfc1035 4.1.1
 struct header
@@ -52,15 +42,33 @@ struct resource_record
     void *rdata;
 };
 
-#define DNS_TYPE_ERROR 0
-#define DNS_TYPE_A 1
-#define DNS_TYPE_NS 2
-#define DNS_TYPE_MD 3
+enum protocol
+{
+    tcp,
+    udp,
+};
+
+struct request
+{
+    char *addr;
+    uint16_t port;
+    enum protocol pr;
+    char *qname;
+    uint16_t type;
+};
+
+struct response
+{
+    struct header hdr;
+    int answers_count;
+    struct resource_records *answers;
+};
 
 void strupr(const char *str, char *result);
 uint16_t dns_type_to_int(const char *type);
 
 uint8_t create_request(struct question *question, void *buf, uint16_t buf_size);
-void resolv(const struct request r);
+int resolv(const struct request r, char *buffer);
+struct response get_response(void *buffer, int len);
 
 #endif
