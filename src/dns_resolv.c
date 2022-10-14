@@ -79,7 +79,7 @@ uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
     return 17 + cur_pos;
 }
 
-void resolv(char *addr, uint16_t port, char *qname, uint16_t type)
+void resolv(const struct request r)
 {
     int sockfd;
     char buffer[BUF];
@@ -89,19 +89,19 @@ void resolv(char *addr, uint16_t port, char *qname, uint16_t type)
         perror("socket creation failed");
         return;
     }
-    printf("addr = %s\n", addr);
-    printf("port = %d\n", port);
-    printf("qname = %s\n", qname);
+    printf("addr = %s\n", r.addr);
+    printf("port = %d\n", r.port);
+    printf("qname = %s\n", r.qname);
     memset(&servaddr, 0, sizeof(servaddr));
 
     servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(port);
-    servaddr.sin_addr.s_addr = inet_addr(addr);
+    servaddr.sin_port = htons(r.port);
+    servaddr.sin_addr.s_addr = inet_addr(r.addr);
 
     int n, len;
     struct question q;
-    q.qname = qname;
-    q.qtype = type;
+    q.qname = r.qname;
+    q.qtype = r.type;
     q.qclass = 1;
     void *buf;
     buf = malloc(1024);

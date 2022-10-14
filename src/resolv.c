@@ -102,7 +102,8 @@ int main(int argc, char *argv[])
             char *qname = argv[optind++];
             printf("%s ", qname);
             puts("resolv");
-            resolv("127.0.0.1", 53, qname, type);
+            struct request r = {"127.0.0.1", 53, udp, qname, type};
+            resolv(r);
             putchar('\n');
         }
     }

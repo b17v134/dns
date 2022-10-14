@@ -4,6 +4,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+enum protocol
+{
+    tcp,
+    udp,
+};
+
+struct request
+{
+    char *addr;
+    uint16_t port;
+    enum protocol pr;
+    char *qname;
+    uint16_t type;
+};
+
 // https://www.rfc-editor.org/rfc/rfc1035 4.1.1
 struct header
 {
@@ -46,6 +61,6 @@ void strupr(const char *str, char *result);
 uint16_t dns_type_to_int(const char *type);
 
 uint8_t create_request(struct question *question, void *buf, uint16_t buf_size);
-void resolv(char *addr, uint16_t port, char *qname, uint16_t type);
+void resolv(const struct request r);
 
 #endif
