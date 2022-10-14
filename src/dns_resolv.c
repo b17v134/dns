@@ -147,6 +147,11 @@ int resolv(const struct request r, char *buffer)
     return n;
 }
 
+uint16_t read_uint16_t(void *buf)
+{
+    return (*(uint8_t *)buf) * 0x100 + (*(uint8_t *)(buf + 1));
+}
+
 struct response get_response(void *buffer, int len)
 {
     puts("");
@@ -162,12 +167,12 @@ struct response get_response(void *buffer, int len)
     puts("");
     struct response result = {0};
 
-    result.hdr.id = (*(uint8_t *)(buffer + 0)) * 0x100 + (*(uint8_t *)(buffer + 1));
-    uint16_t flags = (*(uint8_t *)(buffer + 2)) * 0x100 + (*(uint8_t *)(buffer + 3));
-    result.hdr.qdcount = (*(uint8_t *)(buffer + 4)) * 0x100 + (*(uint8_t *)(buffer + 5));
-    result.hdr.ancount = (*(uint8_t *)(buffer + 6)) * 0x100 + (*(uint8_t *)(buffer + 7));
-    result.hdr.nscount = (*(uint8_t *)(buffer + 8)) * 0x100 + (*(uint8_t *)(buffer + 9));
-    result.hdr.arcount = (*(uint8_t *)(buffer + 10)) * 0x100 + (*(uint8_t *)(buffer + 11));
+    result.hdr.id = read_uint16_t(buffer);
+    uint16_t flags = read_uint16_t(buffer + 2);
+    result.hdr.qdcount = read_uint16_t(buffer + 4);
+    result.hdr.ancount = read_uint16_t(buffer + 6);
+    result.hdr.nscount = read_uint16_t(buffer + 8);
+    result.hdr.arcount = read_uint16_t(buffer + 10);
     printf("result.hdr.id = %x\n", result.hdr.id);
     printf("result.hdr.qdcount = %d\n", result.hdr.qdcount);
     printf("result.hdr.ancount = %d\n", result.hdr.ancount);
