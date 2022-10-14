@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
-void test() {
+void test()
+{
     puts("Hello World!");
 }
