@@ -249,15 +249,20 @@ struct response get_response(void *buffer, int len)
         result.answers[i].ttl = read_uint32_t(buffer + pos + 5);
         result.answers[i].rdlength = read_uint16_t(buffer + pos + 9);
         int tmp = result.answers[i].rdlength;
-        if (result.answers[i].type == DNS_TYPE_A)
-        {
-            result.answers[i].rdata = malloc(sizeof(char) * 16);
-            read_ipv4(buffer + pos + 11, result.answers[i].rdata);
-        }
-        if (result.answers[i].type == DNS_TYPE_AAAA)
-        {
-            result.answers[i].rdata = malloc(sizeof(char) * 50); // @todo: fix size
-            read_ipv6(buffer + pos + 11, result.answers[i].rdata);
+        switch (result.answers[i].type) { 
+            case DNS_TYPE_A:
+                result.answers[i].rdata = malloc(sizeof(char) * 16);
+                read_ipv4(buffer + pos + 11, result.answers[i].rdata);
+                break;
+            case DNS_TYPE_AAAA:
+                result.answers[i].rdata = malloc(sizeof(char) * 50); // @todo: fix size
+                read_ipv6(buffer + pos + 11, result.answers[i].rdata);
+                break;
+            default:
+                result.answers[i].rdata = malloc(sizeof(char) * (result.answers[i].rdlength + 1));
+                memcpy(result.answers[i].rdata, buffer+ pos + 11, result.answers[i].rdlength);
+                result.answers[i].rdata[result.answers[i].rdlength] = '\0';
+                break;
         }
         pos += 11 + tmp;
     }
