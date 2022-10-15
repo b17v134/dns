@@ -147,9 +147,33 @@ int resolv(const struct request r, char *buffer)
     return n;
 }
 
+uint16_t read_uint8_t(void *buf)
+{
+    return (*(uint8_t *)buf);
+}
+
 uint16_t read_uint16_t(void *buf)
 {
     return (*(uint8_t *)buf) * 0x100 + (*(uint8_t *)(buf + 1));
+}
+
+uint32_t read_uint32_t(void *buf)
+{
+    return (*(uint8_t *)buf) * 0x1000000 +
+           (*(uint8_t *)(buf + 1)) * 0x10000 +
+           (*(uint8_t *)(buf + 2)) * 0x100 +
+           (*(uint8_t *)(buf + 3));
+}
+
+void read_ipv4(void *buf, char *ip)
+{
+    sprintf(
+        ip,
+        "%d.%d.%d.%d",
+        read_uint8_t(buf),
+        read_uint8_t(buf + 1),
+        read_uint8_t(buf + 2),
+        read_uint8_t(buf + 3));
 }
 
 struct response get_response(void *buffer, int len)
@@ -178,10 +202,96 @@ struct response get_response(void *buffer, int len)
     printf("result.hdr.ancount = %d\n", result.hdr.ancount);
     printf("result.hdr.nscount = %d\n", result.hdr.nscount);
     printf("result.hdr.arcount = %d\n", result.hdr.arcount);
-    // result.answers = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.ancount);
-    /*for (int i = 0; i < result.hdr.ancount; i++)
+
+    int pos = 12;
+    result.questions = malloc(sizeof(struct question) * result.hdr.qdcount);
+    for (int i = 0; i < result.hdr.qdcount; i++)
     {
-    }*/
+        char *qname = NULL;
+        uint8_t length;
+        while (length = *(uint8_t *)(buffer + pos))
+        {
+            printf("length = %d\n", length);
+            if (qname == NULL)
+            {
+                qname = (char *)malloc(sizeof(char) * (length + 1));
+                memcpy(qname, buffer + pos + 1, length);
+            }
+            else
+            {
+                qname = (char *)realloc(qname, sizeof(char) * (length + 1));
+                strncat(qname, buffer + pos + 1, length);
+            }
+
+            printf("qname = %s\n", qname);
+            strcat(qname, ".");
+            printf("qname = %s\n", qname);
+            pos += length + 1;
+            printf("pos = %d\n", pos);
+            puts("===========");
+        }
+        result.questions[i].qname = qname;
+        result.questions[i].qtype = read_uint16_t(buffer + pos + 1);
+        printf("qtype = %d\n", result.questions[i].qtype);
+        result.questions[i].qclass = read_uint16_t(buffer + pos + 3);
+        printf("qclass = %d\n", result.questions[i].qclass);
+        pos += 5;
+    }
+    printf("current pos = %d\n", pos);
+    result.answers = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.ancount);
+    for (int i = 0; i < result.hdr.ancount; i++)
+    {
+        char *qname = NULL;
+        uint8_t length;
+        uint8_t tmp_pos = pos;
+        while (length = *(uint8_t *)(buffer + tmp_pos))
+        {
+            printf("answer length = %d\n", length);
+            if (((length & 0b11000000) >> 6) == 0b11)
+            {
+                puts("pointer");
+                printf("%02x %02x\n", *(uint8_t *)(buffer + tmp_pos), *(uint8_t *)(buffer + tmp_pos + 1));
+                tmp_pos = read_uint16_t(buffer + tmp_pos) - 0b1100000000000000;
+                printf("tmp_pos = %d\n", tmp_pos);
+
+                length = *(uint8_t *)(buffer + tmp_pos);
+                printf("length = %d\n", length);
+            }
+            if (qname == NULL)
+            {
+                qname = (char *)malloc(sizeof(char) * (length + 1));
+                memcpy(qname, buffer + tmp_pos + 1, length);
+            }
+            else
+            {
+                qname = (char *)realloc(qname, sizeof(char) * (length + 1));
+                strncat(qname, buffer + tmp_pos + 1, length);
+            }
+
+            printf("name = %s\n", qname);
+            strcat(qname, ".");
+            printf("name = %s\n", qname);
+            tmp_pos += length + 1;
+            printf("pos = %d\n", pos);
+            puts("===========");
+        }
+        result.answers[i].name = qname;
+        pos += 1;
+        printf("current pos after name = %d\n", pos);
+        result.answers[i].type = read_uint16_t(buffer + pos + 1);
+        printf("type = %d\n", result.answers[i].type);
+        result.answers[i].class = read_uint16_t(buffer + pos + 3);
+        printf("class = %d\n", result.answers[i].class);
+        result.answers[i].ttl = read_uint32_t(buffer + pos + 5);
+        printf("ttl = %d\n", result.answers[i].ttl);
+        result.answers[i].rdlength = read_uint16_t(buffer + pos + 9);
+        int tmp = result.answers[i].rdlength;
+        printf("rdlength = %d\n", tmp);
+        result.answers[i].rdata = malloc(sizeof(char) * 16);
+        read_ipv4(buffer + pos + 11, result.answers[i].rdata);
+        printf("rdata = %s\n", result.answers[i].rdata);
+        pos += 11 + tmp;
+    }
     return result;
 }
 

@@ -39,7 +39,7 @@ struct resource_record
     uint16_t class;
     uint32_t ttl;
     uint16_t rdlength;
-    void *rdata;
+    char *rdata;
 };
 
 enum protocol
@@ -60,7 +60,8 @@ struct request
 struct response
 {
     struct header hdr;
-    struct resource_records *answers;
+    struct question *questions;
+    struct resource_record *answers;
 };
 
 void strupr(const char *str, char *result);
