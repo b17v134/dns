@@ -269,12 +269,24 @@ void print_response(struct response resp)
     puts("questions:");
     for (int i = 0; i < resp.hdr.qdcount; i++)
     {
-        printf("%s\t%d\t%d\n", resp.questions[i].qname, resp.questions[i].qclass, resp.questions[i].qtype);
+        printf(
+            "%s\t%d\t%d\n", 
+            resp.questions[i].qname, 
+            resp.questions[i].qclass, 
+            resp.questions[i].qtype
+            );
     }
     puts("\nanswers:");
     for (int i = 0; i < resp.hdr.ancount; i++)
     {
-        printf("%s\t%d\t%d\t%d\t%s\n", resp.answers[i].name, resp.answers[i].ttl, resp.answers[i].class, resp.answers[i].type, resp.answers[i].rdata);
+        printf(
+            "%s\t%d\t%d\t%s\t%s\n", 
+            resp.answers[i].name, 
+            resp.answers[i].ttl, 
+            resp.answers[i].class, 
+            int_to_dns_type(resp.answers[i].type), 
+            resp.answers[i].rdata
+            );
     }
 }
 

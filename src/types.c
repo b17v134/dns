@@ -46,3 +46,17 @@ finish:
     free(dns_type);
     return result;
 }
+
+#define DNS_CHECK_INT_TYPE(value, stdValue) case (value): return (stdValue); break;
+
+char* int_to_dns_type(uint16_t type) {
+    switch(type) {
+        DNS_CHECK_INT_TYPE(DNS_TYPE_A, "A")
+        DNS_CHECK_INT_TYPE(DNS_TYPE_NS, "NS")
+        DNS_CHECK_INT_TYPE(DNS_TYPE_MD, "MD")
+        DNS_CHECK_INT_TYPE(DNS_TYPE_AAAA, "AAAA")
+        default:
+            return "ERROR";
+            break;
+    }
+}

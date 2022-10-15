@@ -14,5 +14,6 @@
 #define DNS_TYPE_AAAA 28
 
 uint16_t dns_type_to_int(const char *type);
+char* int_to_dns_type(uint16_t type);
 
 #endif
