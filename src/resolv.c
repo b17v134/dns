@@ -1,4 +1,5 @@
 #include "dns.h"
+#include "dns_resolv.h"
 
 #include <getopt.h>
 #include <stdio.h>
