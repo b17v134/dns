@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "dns_resolv.h"
+#include "types.h"
 
 START_TEST(test_dns_type_to_int)
 {

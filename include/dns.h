@@ -1,6 +1,7 @@
 #ifndef _DNS_H_
 #define _DNS_H_
 
-void test();
+#include "dns_resolv.h"
+#include "types.h"
 
 #endif

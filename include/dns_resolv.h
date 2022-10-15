@@ -4,16 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-4
-#define DNS_TYPE_ERROR 0
-#define DNS_TYPE_A 1
-#define DNS_TYPE_NS 2
-#define DNS_TYPE_MD 3
-#define DNS_TYPE_MF 4
-#define DNS_TYPE_CNAME 5
-
-#define DNS_TYPE_AAAA 28
-
 // https://www.rfc-editor.org/rfc/rfc1035 4.1.1
 struct header
 {
@@ -68,9 +58,6 @@ struct response
     struct question *questions;
     struct resource_record *answers;
 };
-
-void strupr(const char *str, char *result);
-uint16_t dns_type_to_int(const char *type);
 
 uint8_t create_request(struct question *question, void *buf, uint16_t buf_size);
 int resolv(const struct request r, char *buffer);
