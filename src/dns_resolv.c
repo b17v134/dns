@@ -176,6 +176,22 @@ void read_ipv4(void *buf, char *ip)
         read_uint8_t(buf + 3));
 }
 
+void read_ipv6(void *buf, char *ip)
+{
+    char num[3];
+    ip[0] = '\0';
+
+    for (int i = 0; i < 16; i++)
+    {
+        sprintf(num, "%02x", read_uint8_t(buf + i));
+        strcat(ip, num);
+        if ((i % 2 == 1) && (i < 15))
+        {
+            strcat(ip, ":");
+        }
+    }
+}
+
 struct response get_response(void *buffer, int len)
 {
     puts("");
@@ -287,8 +303,16 @@ struct response get_response(void *buffer, int len)
         result.answers[i].rdlength = read_uint16_t(buffer + pos + 9);
         int tmp = result.answers[i].rdlength;
         printf("rdlength = %d\n", tmp);
-        result.answers[i].rdata = malloc(sizeof(char) * 16);
-        read_ipv4(buffer + pos + 11, result.answers[i].rdata);
+        if (result.answers[i].type == DNS_TYPE_A)
+        {
+            result.answers[i].rdata = malloc(sizeof(char) * 16);
+            read_ipv4(buffer + pos + 11, result.answers[i].rdata);
+        }
+        if (result.answers[i].type == DNS_TYPE_AAAA)
+        {
+            result.answers[i].rdata = malloc(sizeof(char) * 50); // @todo: fix size
+            read_ipv6(buffer + pos + 11, result.answers[i].rdata);
+        }
         printf("rdata = %s\n", result.answers[i].rdata);
         pos += 11 + tmp;
     }
@@ -330,6 +354,7 @@ uint16_t dns_type_to_int(const char *type)
     DNS_CHECK_TYPE("A", DNS_TYPE_A)
     DNS_CHECK_TYPE("NS", DNS_TYPE_NS)
     DNS_CHECK_TYPE("MD", DNS_TYPE_MD)
+    DNS_CHECK_TYPE("AAAA", DNS_TYPE_AAAA)
 
 finish:
     free(dns_type);
