@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 const char *version = "0.0.1";
 
@@ -12,7 +13,8 @@ static int server_flag;
 static int verbose_flag;
 static int version_flag;
 
-static uint16_t type = 1;
+static uint16_t type = DNS_TYPE_A;
+static char *server;
 
 static struct option long_options[] = {
     {"help", no_argument, &help_flag, 1},
@@ -24,6 +26,7 @@ static struct option long_options[] = {
 
 void print_version();
 void print_usage();
+void set_server(char *srv);
 
 int main(int argc, char *argv[])
 {
@@ -56,24 +59,18 @@ int main(int argc, char *argv[])
         case 'h':
             print_usage();
             break;
-
         case 'v':
             verbose_flag = 1;
             break;
-
         case 'V':
             print_version();
             break;
-
         case 's':
-            printf("option -s with value `%s'\n", optarg);
+            set_server(optarg);
             break;
-
         case 't':
-            printf("option -t with value `%s'\n", optarg);
             type = dns_type_to_int(optarg);
             break;
-
         default:
             puts("Error");
             return 1;
@@ -95,13 +92,11 @@ int main(int argc, char *argv[])
 
     if (optind < argc)
     {
-        printf("non-option ARGV-elements: ");
         while (optind < argc)
         {
             char *qname = argv[optind++];
             printf("%s ", qname);
-            puts("resolv");
-            struct request r = {"127.0.0.1", 53, udp, qname, type};
+            struct request r = {server, 53, udp, qname, type};
             char *buffer = malloc(sizeof(char) * 1024);
             if (buffer == NULL)
             {
@@ -110,11 +105,16 @@ int main(int argc, char *argv[])
             }
             int len = resolv(r, buffer);
             struct response resp = get_response(buffer, len);
+            free(buffer);
             print_response(resp);
             putchar('\n');
         }
     }
 
+    if (!server)
+    {
+        free(server);
+    }
     return 0;
 }
 
@@ -136,4 +136,15 @@ void print_usage()
  -V, --version       Show version number and exit\n\
 ");
     exit(0);
+}
+
+void set_server(char *srv)
+{
+    server = malloc(sizeof(char) + (strlen(optarg) + 1));
+    if (!server)
+    {
+        perror("Cannot allocate memory");
+        exit(1);
+    }
+    strcpy(server, optarg);
 }
