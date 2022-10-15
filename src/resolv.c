@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
             }
             int len = resolv(r, buffer);
             struct response resp = get_response(buffer, len);
+            print_response(resp);
             putchar('\n');
         }
     }

@@ -75,5 +75,6 @@ uint16_t dns_type_to_int(const char *type);
 uint8_t create_request(struct question *question, void *buf, uint16_t buf_size);
 int resolv(const struct request r, char *buffer);
 struct response get_response(void *buffer, int len);
+void print_response(struct response resp);
 
 #endif

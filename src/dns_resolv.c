@@ -92,7 +92,6 @@ uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
     struct header r = create_header();
     int header_length = write_header(buf, r);
     int length = write_question(buf + header_length, question);
-    puts("created request");
     return header_length + length;
 }
 
@@ -105,9 +104,6 @@ int resolv(const struct request r, char *buffer)
         perror("socket creation failed");
         return -1;
     }
-    printf("addr = %s\n", r.addr);
-    printf("port = %d\n", r.port);
-    printf("qname = %s\n", r.qname);
     memset(&servaddr, 0, sizeof(servaddr));
 
     servaddr.sin_family = AF_INET;
@@ -126,23 +122,12 @@ int resolv(const struct request r, char *buffer)
         perror("Cannot allocate memory");
         exit(1);
     }
-    puts("create request");
     int s = create_request(&q, buf, 1024);
-    puts("send request");
-    puts("buffer = ");
-    for (int i = 0; i < s; i++)
-    {
-        void *addr = buf + i;
-        printf("%c ", addr);
-    }
-    puts("\n");
     size_t result = sendto(sockfd, buf, s, MSG_CONFIRM, (const struct sockaddr *)&servaddr, sizeof(servaddr));
     free(buf);
-    printf("Request sent size = %d. result = %d\n", s, result);
 
     n = recvfrom(sockfd, (char *)buffer, BUF, MSG_WAITALL, (struct sockaddr *)&servaddr, &len);
     buffer[n] = '\0';
-    printf("Server : %d\n", n);
     close(sockfd);
     return n;
 }
@@ -194,17 +179,6 @@ void read_ipv6(void *buf, char *ip)
 
 struct response get_response(void *buffer, int len)
 {
-    puts("");
-    for (int i = 0; i < len; i++)
-    {
-        printf("%02x ", *(uint8_t *)(buffer + i));
-    }
-    puts("");
-    for (int i = 0; i < len; i++)
-    {
-        printf("%c", *(char *)(buffer + i));
-    }
-    puts("");
     struct response result = {0};
 
     result.hdr.id = read_uint16_t(buffer);
@@ -213,11 +187,6 @@ struct response get_response(void *buffer, int len)
     result.hdr.ancount = read_uint16_t(buffer + 6);
     result.hdr.nscount = read_uint16_t(buffer + 8);
     result.hdr.arcount = read_uint16_t(buffer + 10);
-    printf("result.hdr.id = %x\n", result.hdr.id);
-    printf("result.hdr.qdcount = %d\n", result.hdr.qdcount);
-    printf("result.hdr.ancount = %d\n", result.hdr.ancount);
-    printf("result.hdr.nscount = %d\n", result.hdr.nscount);
-    printf("result.hdr.arcount = %d\n", result.hdr.arcount);
 
     int pos = 12;
     result.questions = malloc(sizeof(struct question) * result.hdr.qdcount);
@@ -227,7 +196,6 @@ struct response get_response(void *buffer, int len)
         uint8_t length;
         while (length = *(uint8_t *)(buffer + pos))
         {
-            printf("length = %d\n", length);
             if (qname == NULL)
             {
                 qname = (char *)malloc(sizeof(char) * (length + 1));
@@ -238,22 +206,14 @@ struct response get_response(void *buffer, int len)
                 qname = (char *)realloc(qname, sizeof(char) * (length + 1));
                 strncat(qname, buffer + pos + 1, length);
             }
-
-            printf("qname = %s\n", qname);
             strcat(qname, ".");
-            printf("qname = %s\n", qname);
             pos += length + 1;
-            printf("pos = %d\n", pos);
-            puts("===========");
         }
         result.questions[i].qname = qname;
         result.questions[i].qtype = read_uint16_t(buffer + pos + 1);
-        printf("qtype = %d\n", result.questions[i].qtype);
         result.questions[i].qclass = read_uint16_t(buffer + pos + 3);
-        printf("qclass = %d\n", result.questions[i].qclass);
         pos += 5;
     }
-    printf("current pos = %d\n", pos);
     result.answers = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.ancount);
     for (int i = 0; i < result.hdr.ancount; i++)
     {
@@ -262,16 +222,11 @@ struct response get_response(void *buffer, int len)
         uint8_t tmp_pos = pos;
         while (length = *(uint8_t *)(buffer + tmp_pos))
         {
-            printf("answer length = %d\n", length);
             if (((length & 0b11000000) >> 6) == 0b11)
             {
-                puts("pointer");
-                printf("%02x %02x\n", *(uint8_t *)(buffer + tmp_pos), *(uint8_t *)(buffer + tmp_pos + 1));
                 tmp_pos = read_uint16_t(buffer + tmp_pos) - 0b1100000000000000;
-                printf("tmp_pos = %d\n", tmp_pos);
 
                 length = *(uint8_t *)(buffer + tmp_pos);
-                printf("length = %d\n", length);
             }
             if (qname == NULL)
             {
@@ -284,25 +239,16 @@ struct response get_response(void *buffer, int len)
                 strncat(qname, buffer + tmp_pos + 1, length);
             }
 
-            printf("name = %s\n", qname);
             strcat(qname, ".");
-            printf("name = %s\n", qname);
             tmp_pos += length + 1;
-            printf("pos = %d\n", pos);
-            puts("===========");
         }
         result.answers[i].name = qname;
         pos += 1;
-        printf("current pos after name = %d\n", pos);
         result.answers[i].type = read_uint16_t(buffer + pos + 1);
-        printf("type = %d\n", result.answers[i].type);
         result.answers[i].class = read_uint16_t(buffer + pos + 3);
-        printf("class = %d\n", result.answers[i].class);
         result.answers[i].ttl = read_uint32_t(buffer + pos + 5);
-        printf("ttl = %d\n", result.answers[i].ttl);
         result.answers[i].rdlength = read_uint16_t(buffer + pos + 9);
         int tmp = result.answers[i].rdlength;
-        printf("rdlength = %d\n", tmp);
         if (result.answers[i].type == DNS_TYPE_A)
         {
             result.answers[i].rdata = malloc(sizeof(char) * 16);
@@ -313,10 +259,23 @@ struct response get_response(void *buffer, int len)
             result.answers[i].rdata = malloc(sizeof(char) * 50); // @todo: fix size
             read_ipv6(buffer + pos + 11, result.answers[i].rdata);
         }
-        printf("rdata = %s\n", result.answers[i].rdata);
         pos += 11 + tmp;
     }
     return result;
+}
+
+void print_response(struct response resp)
+{
+    puts("questions:");
+    for (int i = 0; i < resp.hdr.qdcount; i++)
+    {
+        printf("%s\t%d\t%d\n", resp.questions[i].qname, resp.questions[i].qclass, resp.questions[i].qtype);
+    }
+    puts("\nanswers:");
+    for (int i = 0; i < resp.hdr.ancount; i++)
+    {
+        printf("%s\t%d\t%d\t%d\t%s\n", resp.answers[i].name, resp.answers[i].ttl, resp.answers[i].class, resp.answers[i].type, resp.answers[i].rdata);
+    }
 }
 
 void strupr(const char *str, char *result)
