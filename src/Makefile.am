@@ -2,6 +2,8 @@ lib_LTLIBRARIES = libdns.la
 libdns_la_SOURCES = dns_resolv.c types.c
 libdns_la_CFLAGS=-I${top_srcdir}/include
 libdns_la_LDFLAGS = -module -avoid-version -export-dynamic
+otherincludedir = $(includedir)/dns
+otherinclude_HEADERS = ${top_srcdir}/include/dns.h ${top_srcdir}/include/dns_resolv.h ${top_srcdir}/include/types.h
 
 bin_PROGRAMS = resolv
 resolv_DEPENDENCIES=libdns.la
