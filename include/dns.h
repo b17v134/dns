@@ -3,6 +3,7 @@
 
 #include "classes.h"
 #include "dns_resolv.h"
+#include "print.h"
 #include "types.h"
 
 #endif

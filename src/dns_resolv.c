@@ -310,38 +310,3 @@ struct response get_response(void *buffer, int len)
     }
     return result;
 }
-
-void print_response(struct response resp)
-{
-    puts("questions:");
-    for (int i = 0; i < resp.hdr.qdcount; i++)
-    {
-        printf(
-            "%s\t\t%s\t%s\n",
-            resp.questions[i].qname,
-            int_to_dns_class(resp.questions[i].qclass),
-            int_to_dns_type(resp.questions[i].qtype));
-    }
-    puts("\nanswers:");
-    for (int i = 0; i < resp.hdr.ancount; i++)
-    {
-        printf(
-            "%s\t%d\t%s\t%s\t%s\n",
-            resp.answers[i].name,
-            resp.answers[i].ttl,
-            int_to_dns_class(resp.answers[i].class),
-            int_to_dns_type(resp.answers[i].type),
-            resp.answers[i].rdata);
-    }
-    puts("\nauthority records:");
-    for (int i = 0; i < resp.hdr.nscount; i++)
-    {
-        printf(
-            "%s\t%d\t%s\t%s\t%s\n",
-            resp.authority_records[i].name,
-            resp.authority_records[i].ttl,
-            int_to_dns_class(resp.authority_records[i].class),
-            int_to_dns_type(resp.authority_records[i].type),
-            resp.authority_records[i].rdata);
-    }
-}
