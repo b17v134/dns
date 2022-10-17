@@ -7,14 +7,43 @@
 // https://www.rfc-editor.org/rfc/rfc1035 4.1.1
 struct header
 {
+    // Identifier.
     uint16_t id;
+
     // A one bit field that specifies whether this message is a query (0), or a response (1).
     uint8_t qr;
-    // Recursion Desired
+
+    // A four bit field that specifies kind of query.
+    uint8_t opcode;
+
+    // Authoritative Answer.
+    uint8_t aa;
+
+    // Specifies that this message was truncated.
+    uint8_t tc;
+
+    // Recursion Desired.
     uint8_t rd;
+
+    // Recursion Available.
+    uint8_t ra;
+
+    // Reserved for future use. Must be zero in all queries and responses.
+    uint8_t z;
+
+    // Response code.
+    uint8_t rcode;
+
+    // Number of entries in the question section.
     uint16_t qdcount;
+
+    // Number of resource records in the answer section.
     uint16_t ancount;
+
+    // Number of name server resource records in the authority records section.
     uint16_t nscount;
+
+    // Number of resource records in the additional records section.
     uint16_t arcount;
 };
 
