@@ -155,5 +155,11 @@ struct response get_response(void *buffer, int len)
         pos = read_resource_record(buffer, pos, &(result.authority_records[i]));
     }
 
+    result.additional_records = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.arcount);
+    for (int i = 0; i < result.hdr.arcount; i++)
+    {
+        pos = read_resource_record(buffer, pos, &(result.additional_records[i]));
+    }
+
     return result;
 }

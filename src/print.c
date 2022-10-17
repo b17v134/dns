@@ -49,4 +49,9 @@ void print_response(const struct response resp)
     {
         print_resource_record(resp.authority_records[i]);
     }
+    puts("\nadditional records:");
+    for (int i = 0; i < resp.hdr.arcount; i++)
+    {
+        print_resource_record(resp.additional_records[i]);
+    }
 }
