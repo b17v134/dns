@@ -176,42 +176,56 @@ void read_ipv6(void *buf, char *ip)
     }
 }
 
+void read_header(void *buffer, struct header *hdr)
+{
+    hdr->id = read_uint16_t(buffer);
+    uint16_t flags = read_uint16_t(buffer + 2);
+    hdr->qdcount = read_uint16_t(buffer + 4);
+    hdr->ancount = read_uint16_t(buffer + 6);
+    hdr->nscount = read_uint16_t(buffer + 8);
+    hdr->arcount = read_uint16_t(buffer + 10);
+}
+
+int read_question(void *buffer, const int pos, struct question *q)
+{
+    char *qname = NULL;
+    int current_pos = pos;
+    uint8_t length;
+
+    while (length = *(uint8_t *)(buffer + current_pos))
+    {
+        if (qname == NULL)
+        {
+            qname = (char *)malloc(sizeof(char) * (length + 1));
+            memcpy(qname, buffer + current_pos + 1, length);
+        }
+        else
+        {
+            qname = (char *)realloc(qname, sizeof(char) * (length + 1));
+            strncat(qname, buffer + current_pos + 1, length);
+        }
+        strcat(qname, ".");
+        current_pos += length + 1;
+    }
+    q->qname = qname;
+    q->qtype = read_uint16_t(buffer + current_pos + 1);
+    q->qclass = read_uint16_t(buffer + current_pos + 3);
+    current_pos += 5;
+
+    return current_pos;
+}
+
 struct response get_response(void *buffer, int len)
 {
     struct response result = {0};
 
-    result.hdr.id = read_uint16_t(buffer);
-    uint16_t flags = read_uint16_t(buffer + 2);
-    result.hdr.qdcount = read_uint16_t(buffer + 4);
-    result.hdr.ancount = read_uint16_t(buffer + 6);
-    result.hdr.nscount = read_uint16_t(buffer + 8);
-    result.hdr.arcount = read_uint16_t(buffer + 10);
+    read_header(buffer, &(result.hdr));
 
     int pos = 12;
     result.questions = malloc(sizeof(struct question) * result.hdr.qdcount);
     for (int i = 0; i < result.hdr.qdcount; i++)
     {
-        char *qname = NULL;
-        uint8_t length;
-        while (length = *(uint8_t *)(buffer + pos))
-        {
-            if (qname == NULL)
-            {
-                qname = (char *)malloc(sizeof(char) * (length + 1));
-                memcpy(qname, buffer + pos + 1, length);
-            }
-            else
-            {
-                qname = (char *)realloc(qname, sizeof(char) * (length + 1));
-                strncat(qname, buffer + pos + 1, length);
-            }
-            strcat(qname, ".");
-            pos += length + 1;
-        }
-        result.questions[i].qname = qname;
-        result.questions[i].qtype = read_uint16_t(buffer + pos + 1);
-        result.questions[i].qclass = read_uint16_t(buffer + pos + 3);
-        pos += 5;
+        pos = read_question(buffer, pos, &result.questions[i]);
     }
     result.answers = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.ancount);
     for (int i = 0; i < result.hdr.ancount; i++)
