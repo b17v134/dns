@@ -1,18 +1,9 @@
 #include "types.h"
+#include "utils.h"
 
-#include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
-void strupr(const char *str, char *result)
-{
-    for (int i = 0; str[i] != '\0'; i++)
-    {
-        result[i] = toupper(str[i]);
-    }
-    result[strlen(str) + 1] = '\0';
-}
 
 #define DNS_CHECK_TYPE(strValue, value)        \
     {                                          \
@@ -47,16 +38,21 @@ finish:
     return result;
 }
 
-#define DNS_CHECK_INT_TYPE(value, stdValue) case (value): return (stdValue); break;
+#define DNS_CHECK_INT_TYPE(value, stdValue) \
+    case (value):                           \
+        return (stdValue);                  \
+        break;
 
-char* int_to_dns_type(uint16_t type) {
-    switch(type) {
+char *int_to_dns_type(uint16_t type)
+{
+    switch (type)
+    {
         DNS_CHECK_INT_TYPE(DNS_TYPE_A, "A")
         DNS_CHECK_INT_TYPE(DNS_TYPE_NS, "NS")
         DNS_CHECK_INT_TYPE(DNS_TYPE_MD, "MD")
         DNS_CHECK_INT_TYPE(DNS_TYPE_AAAA, "AAAA")
-        default:
-            return "ERROR";
-            break;
+    default:
+        return "ERROR";
+        break;
     }
 }

@@ -57,6 +57,7 @@ struct response
     struct header hdr;
     struct question *questions;
     struct resource_record *answers;
+    struct resource_record *authority_records;
 };
 
 uint8_t create_request(struct question *question, void *buf, uint16_t buf_size);

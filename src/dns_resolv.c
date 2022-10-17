@@ -9,7 +9,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
-#include <ctype.h>
 
 #define BUF 1024
 
@@ -249,21 +248,64 @@ struct response get_response(void *buffer, int len)
         result.answers[i].ttl = read_uint32_t(buffer + pos + 5);
         result.answers[i].rdlength = read_uint16_t(buffer + pos + 9);
         int tmp = result.answers[i].rdlength;
-        switch (result.answers[i].type) { 
-            case DNS_TYPE_A:
-                result.answers[i].rdata = malloc(sizeof(char) * 16);
-                read_ipv4(buffer + pos + 11, result.answers[i].rdata);
-                break;
-            case DNS_TYPE_AAAA:
-                result.answers[i].rdata = malloc(sizeof(char) * 50); // @todo: fix size
-                read_ipv6(buffer + pos + 11, result.answers[i].rdata);
-                break;
-            default:
-                result.answers[i].rdata = malloc(sizeof(char) * (result.answers[i].rdlength + 1));
-                memcpy(result.answers[i].rdata, buffer+ pos + 11, result.answers[i].rdlength);
-                result.answers[i].rdata[result.answers[i].rdlength] = '\0';
-                break;
+        switch (result.answers[i].type)
+        {
+        case DNS_TYPE_A:
+            result.answers[i].rdata = malloc(sizeof(char) * 16);
+            read_ipv4(buffer + pos + 11, result.answers[i].rdata);
+            break;
+        case DNS_TYPE_AAAA:
+            result.answers[i].rdata = malloc(sizeof(char) * 50); // @todo: fix size
+            read_ipv6(buffer + pos + 11, result.answers[i].rdata);
+            break;
+        default:
+            result.answers[i].rdata = malloc(sizeof(char) * (result.answers[i].rdlength + 1));
+            memcpy(result.answers[i].rdata, buffer + pos + 11, result.answers[i].rdlength);
+            result.answers[i].rdata[result.answers[i].rdlength] = '\0';
+            break;
         }
+        pos += 11 + tmp;
+    }
+
+    result.authority_records = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.nscount);
+    for (int i = 0; i < result.hdr.nscount; i++)
+    {
+        char *qname = NULL;
+        uint8_t length;
+        uint8_t tmp_pos = pos;
+        while (length = *(uint8_t *)(buffer + tmp_pos))
+        {
+            if (((length & 0b11000000) >> 6) == 0b11)
+            {
+                tmp_pos = read_uint16_t(buffer + tmp_pos) - 0b1100000000000000;
+
+                length = *(uint8_t *)(buffer + tmp_pos);
+            }
+            if (qname == NULL)
+            {
+                qname = (char *)malloc(sizeof(char) * (length + 1));
+                memcpy(qname, buffer + tmp_pos + 1, length);
+            }
+            else
+            {
+                qname = (char *)realloc(qname, sizeof(char) * (length + 1));
+                strncat(qname, buffer + tmp_pos + 1, length);
+            }
+
+            strcat(qname, ".");
+            tmp_pos += length + 1;
+        }
+        result.authority_records[i].name = qname;
+        pos += 1;
+        result.authority_records[i].type = read_uint16_t(buffer + pos + 1);
+        result.authority_records[i].class = read_uint16_t(buffer + pos + 3);
+        result.authority_records[i].ttl = read_uint32_t(buffer + pos + 5);
+        result.authority_records[i].rdlength = read_uint16_t(buffer + pos + 9);
+        int tmp = result.authority_records[i].rdlength;
+
+        result.authority_records[i].rdata = malloc(sizeof(char) * (result.authority_records[i].rdlength + 1));
+        memcpy(result.authority_records[i].rdata, buffer + pos + 11, result.authority_records[i].rdlength);
+        result.authority_records[i].rdata[result.authority_records[i].rdlength] = '\0';
         pos += 11 + tmp;
     }
     return result;
@@ -275,23 +317,31 @@ void print_response(struct response resp)
     for (int i = 0; i < resp.hdr.qdcount; i++)
     {
         printf(
-            "%s\t%d\t%d\n", 
-            resp.questions[i].qname, 
-            resp.questions[i].qclass, 
-            resp.questions[i].qtype
-            );
+            "%s\t\t%s\t%s\n",
+            resp.questions[i].qname,
+            int_to_dns_class(resp.questions[i].qclass),
+            int_to_dns_type(resp.questions[i].qtype));
     }
     puts("\nanswers:");
     for (int i = 0; i < resp.hdr.ancount; i++)
     {
         printf(
-            "%s\t%d\t%d\t%s\t%s\n", 
-            resp.answers[i].name, 
-            resp.answers[i].ttl, 
-            resp.answers[i].class, 
-            int_to_dns_type(resp.answers[i].type), 
-            resp.answers[i].rdata
-            );
+            "%s\t%d\t%s\t%s\t%s\n",
+            resp.answers[i].name,
+            resp.answers[i].ttl,
+            int_to_dns_class(resp.answers[i].class),
+            int_to_dns_type(resp.answers[i].type),
+            resp.answers[i].rdata);
+    }
+    puts("\nauthority records:");
+    for (int i = 0; i < resp.hdr.nscount; i++)
+    {
+        printf(
+            "%s\t%d\t%s\t%s\t%s\n",
+            resp.authority_records[i].name,
+            resp.authority_records[i].ttl,
+            int_to_dns_class(resp.authority_records[i].class),
+            int_to_dns_type(resp.authority_records[i].type),
+            resp.authority_records[i].rdata);
     }
 }
-

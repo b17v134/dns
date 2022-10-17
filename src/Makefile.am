@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libdns.la
-libdns_la_SOURCES = dns_resolv.c types.c
+libdns_la_SOURCES = classes.c dns_resolv.c types.c utils.c
 libdns_la_CFLAGS=-I${top_srcdir}/include
 libdns_la_LDFLAGS = -module -avoid-version -export-dynamic
 otherincludedir = $(includedir)/dns
