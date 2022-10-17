@@ -5,7 +5,9 @@ libdns_la_SOURCES =                     \
     print.c                             \
     read.c                              \
     types.c                             \
-    utils.c
+    utils.c                             \
+    write.c
+
 libdns_la_CFLAGS=-I${top_srcdir}/include
 libdns_la_LDFLAGS = -module -avoid-version -export-dynamic
 otherincludedir = $(includedir)/dns
@@ -15,7 +17,8 @@ otherinclude_HEADERS =                  \
     ${top_srcdir}/include/dns.h         \
     ${top_srcdir}/include/print.h       \
     ${top_srcdir}/include/read.h        \
-    ${top_srcdir}/include/types.h
+    ${top_srcdir}/include/types.h       \
+    ${top_srcdir}/include/write.h
 
 bin_PROGRAMS = resolv
 resolv_DEPENDENCIES=libdns.la

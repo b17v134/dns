@@ -6,5 +6,6 @@
 #include "print.h"
 #include "read.h"
 #include "types.h"
+#include "write.h"
 
 #endif
