@@ -95,7 +95,6 @@ int main(int argc, char *argv[])
         while (optind < argc)
         {
             char *qname = argv[optind++];
-            printf("%s ", qname);
             struct request r = {server, 53, udp, qname, type};
             char *buffer = malloc(sizeof(char) * 1024);
             if (buffer == NULL)

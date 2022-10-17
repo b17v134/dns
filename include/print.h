@@ -3,7 +3,8 @@
 
 #include "dns_resolv.h"
 
-void print_resource_record(struct resource_record record);
-void print_response(struct response resp);
+void print_header(const struct header hdr);
+void print_resource_record(const struct resource_record record);
+void print_response(const struct response resp);
 
 #endif

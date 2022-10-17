@@ -4,7 +4,17 @@
 
 #include <stdio.h>
 
-void print_resource_record(struct resource_record record)
+void print_header(const struct header hdr)
+{
+    printf(
+        "question: %d\nanswer: %d\nauthority: %d\nadditional: %d\n",
+        hdr.qdcount,
+        hdr.ancount,
+        hdr.nscount,
+        hdr.arcount);
+}
+
+void print_resource_record(const struct resource_record record)
 {
     printf(
         "%s\t%d\t%s\t%s\t%s\n",
@@ -15,9 +25,12 @@ void print_resource_record(struct resource_record record)
         record.rdata);
 }
 
-void print_response(struct response resp)
+void print_response(const struct response resp)
 {
-    puts("questions:");
+    puts("header:");
+    print_header(resp.hdr);
+
+    puts("\nquestions:");
     for (int i = 0; i < resp.hdr.qdcount; i++)
     {
         printf(
