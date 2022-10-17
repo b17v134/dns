@@ -12,11 +12,6 @@
 
 #define BUF 1024
 
-uint16_t get_flags(uint8_t qr, uint8_t rd)
-{
-    return ((qr & 0b1) << 16) + ((rd & 0b1) << 8);
-}
-
 struct header create_header()
 {
     srand(time(NULL));

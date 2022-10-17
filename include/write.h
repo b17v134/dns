@@ -1,7 +1,7 @@
 #ifndef _WRITE_H_
 #define _WRITE_H_
 
-#include "dns_resolv.h"
+#include "message.h"
 
 void write_uint16_t(void *buf, uint16_t value);
 int write_qname(void *buf, char *qname);

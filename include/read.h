@@ -1,7 +1,8 @@
 #ifndef _READ_H_
 #define _READ_H_
 
-#include "dns_resolv.h"
+#include "message.h"
+
 #include <stdint.h>
 
 uint16_t read_uint8_t(void *buf);

@@ -15,6 +15,7 @@ otherinclude_HEADERS =                  \
     ${top_srcdir}/include/classes.h     \
     ${top_srcdir}/include/dns_resolv.h  \
     ${top_srcdir}/include/dns.h         \
+    ${top_srcdir}/include/message.h     \
     ${top_srcdir}/include/print.h       \
     ${top_srcdir}/include/read.h        \
     ${top_srcdir}/include/types.h       \

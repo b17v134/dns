@@ -1,7 +1,7 @@
 #ifndef _PRINT_H_
 #define _PRINT_H_
 
-#include "dns_resolv.h"
+#include "message.h"
 
 void print_header(const struct header hdr);
 void print_resource_record(const struct resource_record record);

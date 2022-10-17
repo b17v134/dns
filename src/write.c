@@ -1,7 +1,12 @@
-#include "dns_resolv.h"
+#include "message.h"
 #include "write.h"
 
 #include <string.h>
+
+uint16_t get_flags(uint8_t qr, uint8_t rd)
+{
+    return ((qr & 0b1) << 16) + ((rd & 0b1) << 8);
+}
 
 void write_uint16_t(void *buf, uint16_t value)
 {

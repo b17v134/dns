@@ -3,6 +3,7 @@
 
 #include "classes.h"
 #include "dns_resolv.h"
+#include "message.h"
 #include "print.h"
 #include "read.h"
 #include "types.h"
