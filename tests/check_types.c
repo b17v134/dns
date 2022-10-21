@@ -4,6 +4,8 @@
 
 #include "types.h"
 
+Suite *write_suite(void);
+
 START_TEST(test_dns_type_to_int)
 {
 	struct test_data
@@ -27,13 +29,12 @@ START_TEST(test_dns_type_to_int)
 }
 END_TEST
 
-
 START_TEST(test_int_to_dns_type)
 {
 	struct test_data
 	{
 		uint16_t type;
-		char* result;
+		char *result;
 	};
 
 	struct test_data data[] = {
@@ -57,7 +58,7 @@ Suite *dns_resolv_suite(void)
 	TCase *tc_core;
 
 	s = suite_create("types");
-	tc_core = tcase_create("Core");
+	tc_core = tcase_create("types");
 
 	tcase_add_test(tc_core, test_dns_type_to_int);
 	tcase_add_test(tc_core, test_int_to_dns_type);
@@ -73,10 +74,10 @@ int main(void)
 	Suite *s;
 	SRunner *sr;
 
-	s = dns_resolv_suite();
-	sr = srunner_create(s);
-
+	sr = srunner_create(dns_resolv_suite());
+	srunner_add_suite(sr, write_suite());
 	srunner_run_all(sr, CK_NORMAL);
+
 	number_failed = srunner_ntests_failed(sr);
 	srunner_free(sr);
 	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;

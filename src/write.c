@@ -2,6 +2,7 @@
 #include "write.h"
 
 #include <string.h>
+#include <stdio.h>
 
 uint16_t get_flags(uint8_t qr, uint8_t rd)
 {
@@ -14,28 +15,29 @@ void write_uint16_t(void *buf, uint16_t value)
     *(uint8_t *)(buf + 1) = value & 0xFF;
 }
 
-int write_qname(void *buf, char *qname)
+int write_qname(void *buf, const char *qname)
 {
     int length = strlen(qname);
-
-    // Write qname.
-    int prev = 0;
-    int size = 0;
-    int cur_pos = 0;
-    for (int pos = 0; pos < length; pos++)
+    if (qname[length - 1] == '.')
+    {
+        length--;
+    }
+    uint8_t chunk_length = 0;
+    for (int pos = length - 1; pos >= 0; pos--)
     {
         if (qname[pos] == '.')
         {
-            size = pos - prev;
-            *(uint8_t *)(buf + cur_pos) = size;
-            memcpy(buf + cur_pos + 1, &(qname[prev]), size);
-            prev = pos + 1;
-            cur_pos += size + 1;
+            *(uint8_t *)(buf + pos + 1) = chunk_length;
+            chunk_length = 0;
+        }
+        else
+        {
+            chunk_length++;
+            *(char *)(buf + pos + 1) = qname[pos];
         }
     }
-    *(uint8_t *)(buf + cur_pos) = 0;
-
-    return cur_pos;
+    *(uint8_t *)(buf) = chunk_length;
+    return length + 1;
 }
 
 int write_header(void *buf, struct header h)
