@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-uint16_t read_uint8_t(void *buf);
+uint8_t read_uint8_t(void *buf);
 uint16_t read_uint16_t(void *buf);
 uint32_t read_uint32_t(void *buf);
 void read_ipv4(void *buf, char *ip);

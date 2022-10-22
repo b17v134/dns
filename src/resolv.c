@@ -9,7 +9,6 @@
 const char *version = "0.0.1";
 
 static int help_flag;
-static int server_flag;
 static int verbose_flag;
 static int version_flag;
 
@@ -30,7 +29,6 @@ void set_server(char *srv);
 
 int main(int argc, char *argv[])
 {
-    int opt;
     int c;
 
     while (1)

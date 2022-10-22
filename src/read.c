@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-uint16_t read_uint8_t(void *buf)
+uint8_t read_uint8_t(void *buf)
 {
     return (*(uint8_t *)buf);
 }
@@ -54,6 +54,7 @@ void read_header(void *buffer, struct header *hdr)
 {
     hdr->id = read_uint16_t(buffer);
     uint16_t flags = read_uint16_t(buffer + 2);
+    printf("%d\n", flags);
     hdr->qdcount = read_uint16_t(buffer + 4);
     hdr->ancount = read_uint16_t(buffer + 6);
     hdr->nscount = read_uint16_t(buffer + 8);
@@ -66,7 +67,7 @@ int read_question(void *buffer, const int pos, struct question *q)
     int current_pos = pos;
     uint8_t length;
 
-    while (length = *(uint8_t *)(buffer + current_pos))
+    while ((length = *(uint8_t *)(buffer + current_pos)))
     {
         if (qname == NULL)
         {
@@ -95,7 +96,7 @@ int read_resource_record(void *buffer, const int pos, struct resource_record *rr
     int current_pos = pos;
     uint8_t length;
     uint8_t tmp_pos = current_pos;
-    while (length = *(uint8_t *)(buffer + tmp_pos))
+    while ((length = *(uint8_t *)(buffer + tmp_pos)))
     {
         if (((length & 0b11000000) >> 6) == 0b11)
         {

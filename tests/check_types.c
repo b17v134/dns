@@ -71,7 +71,6 @@ Suite *dns_resolv_suite(void)
 int main(void)
 {
 	int number_failed;
-	Suite *s;
 	SRunner *sr;
 
 	sr = srunner_create(dns_resolv_suite());

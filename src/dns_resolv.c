@@ -52,7 +52,8 @@ int resolv(const struct request r, char *buffer)
     servaddr.sin_port = htons(r.port);
     servaddr.sin_addr.s_addr = inet_addr(r.addr);
 
-    int n, len;
+    int n;
+    unsigned int len;
     struct question q;
     q.qname = r.qname;
     q.qtype = r.type;
@@ -65,7 +66,7 @@ int resolv(const struct request r, char *buffer)
         exit(1);
     }
     int s = create_request(&q, buf, 1024);
-    size_t result = sendto(sockfd, buf, s, MSG_CONFIRM, (const struct sockaddr *)&servaddr, sizeof(servaddr));
+    sendto(sockfd, buf, s, MSG_CONFIRM, (const struct sockaddr *)&servaddr, sizeof(servaddr));
     free(buf);
 
     n = recvfrom(sockfd, (char *)buffer, BUF, MSG_WAITALL, (struct sockaddr *)&servaddr, &len);
