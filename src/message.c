@@ -37,8 +37,14 @@ uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
     return header_length + length;
 }
 
-int resolv(const struct request r, char *buffer)
+int resolv(const struct request r, struct response *rsp)
 {
+    char *buffer = malloc(sizeof(char) * 4096);
+    if (buffer == NULL)
+    {
+        perror("Cannot allocate memory");
+        return -1;
+    }
     int sockfd;
     struct sockaddr_in servaddr;
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
@@ -72,7 +78,10 @@ int resolv(const struct request r, char *buffer)
     n = recvfrom(sockfd, (char *)buffer, BUF, MSG_WAITALL, (struct sockaddr *)&servaddr, &len);
     buffer[n] = '\0';
     close(sockfd);
-    return n;
+
+    *rsp = get_response(buffer, n);
+    free(buffer);
+    return 0;
 }
 
 struct response get_response(void *buffer, int len)

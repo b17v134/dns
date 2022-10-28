@@ -105,11 +105,17 @@ int main(int argc, char *argv[])
                 perror("Cannot allocate memory");
                 exit(1);
             }
-            int len = resolv(r, buffer);
-            struct response resp = get_response(buffer, len);
-            free(buffer);
-            print_response(resp);
-            putchar('\n');
+            struct response resp;
+            int len = resolv(r, &resp);
+            if (len != 0)
+            {
+                perror("error");
+            }
+            else
+            {
+                print_response(resp);
+                putchar('\n');
+            }
         }
     }
 
