@@ -14,6 +14,7 @@ static int version_flag;
 
 static uint16_t type = DNS_TYPE_A;
 static char *server;
+static int port = 53;
 
 static struct option long_options[] = {
     {"help", no_argument, &help_flag, 1},
@@ -26,6 +27,7 @@ static struct option long_options[] = {
 void print_version();
 void print_usage();
 void set_server(char *srv);
+void set_port(char *port_arg);
 
 int main(int argc, char *argv[])
 {
@@ -34,7 +36,7 @@ int main(int argc, char *argv[])
     while (1)
     {
         int option_index = 0;
-        c = getopt_long(argc, argv, "hvVs:t:", long_options, &option_index);
+        c = getopt_long(argc, argv, "hvVs:t:p:", long_options, &option_index);
 
         /* Detect the end of the options. */
         if (c == -1)
@@ -57,6 +59,8 @@ int main(int argc, char *argv[])
         case 'h':
             print_usage();
             break;
+        case 'p':
+            set_port(optarg);
         case 'v':
             verbose_flag = 1;
             break;
@@ -93,7 +97,7 @@ int main(int argc, char *argv[])
         while (optind < argc)
         {
             char *qname = argv[optind++];
-            struct request r = {server, 53, udp, qname, type};
+            struct request r = {server, port, udp, qname, type};
             char *buffer = malloc(sizeof(char) * 1024);
             if (buffer == NULL)
             {
@@ -144,4 +148,16 @@ void set_server(char *srv)
         exit(1);
     }
     strcpy(server, optarg);
+}
+
+void set_port(char *port_arg)
+{
+    int p = atoi(port_arg);
+    if ((p <= 0) || (p > 65535))
+    {
+        perror("Incorrect port number.");
+        exit(EXIT_FAILURE);
+    }
+
+    port = p;
 }
