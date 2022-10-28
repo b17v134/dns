@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
             break;
         case 'p':
             set_port(optarg);
+            break;
         case 'v':
             verbose_flag = 1;
             break;
