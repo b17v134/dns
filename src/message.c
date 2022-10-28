@@ -116,3 +116,26 @@ struct response get_response(void *buffer, int len)
 
     return result;
 }
+
+void free_response(struct response resp)
+{
+    for (int i = 0; i < resp.hdr.qdcount; i++)
+    {
+        free(resp.questions[i].qname);
+    }
+
+    for (int i = 0; i < resp.hdr.ancount; i++)
+    {
+        free(resp.answers[i].name);
+    }
+
+    for (int i = 0; i < resp.hdr.nscount; i++)
+    {
+        free(resp.authority_records[i].name);
+    }
+
+    for (int i = 0; i < resp.hdr.arcount; i++)
+    {
+        free(resp.additional_records[i].name);
+    }
+}
