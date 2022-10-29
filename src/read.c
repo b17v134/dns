@@ -88,9 +88,8 @@ int read_question(void *buffer, const int pos, struct question *q)
     return current_pos;
 }
 
-int read_resource_record(void *buffer, const int pos, struct resource_record *rr)
+int read_qname(void *buffer, const int pos, char *qname)
 {
-    char *qname = NULL;
     int current_pos = pos;
     uint8_t length;
     uint8_t tmp_pos = current_pos;
@@ -99,25 +98,25 @@ int read_resource_record(void *buffer, const int pos, struct resource_record *rr
         if (((length & 0b11000000) >> 6) == 0b11)
         {
             tmp_pos = read_uint16_t(buffer + tmp_pos) - 0b1100000000000000;
-
             length = *(uint8_t *)(buffer + tmp_pos);
         }
-        if (qname == NULL)
-        {
-            qname = (char *)malloc(sizeof(char) * (length + 1));
-            memcpy(qname, buffer + tmp_pos + 1, length);
-        }
-        else
-        {
-            qname = (char *)realloc(qname, sizeof(char) * (length + 1));
-            strncat(qname, buffer + tmp_pos + 1, length);
-        }
-
+        strncat(qname, buffer + tmp_pos + 1, length);
         strcat(qname, ".");
         tmp_pos += length + 1;
     }
-    rr->name = qname;
     current_pos += 1;
+    return current_pos;
+}
+
+int read_resource_record(void *buffer, const int pos, struct resource_record *rr)
+{
+    char *qname;
+    int current_pos = pos;
+    qname = malloc(sizeof(char) * BUFSIZ);
+    memset(qname, 0, BUFSIZ);
+    current_pos = read_qname(buffer, pos, qname);
+    qname = (char *)realloc(qname, sizeof(char) * (strlen(qname) + 1));
+    rr->name = qname;
     rr->type = read_uint16_t(buffer + current_pos + 1);
     rr->class = read_uint16_t(buffer + current_pos + 3);
     rr->ttl = read_uint32_t(buffer + current_pos + 5);
@@ -134,9 +133,10 @@ int read_resource_record(void *buffer, const int pos, struct resource_record *rr
         read_ipv6(buffer + current_pos + 11, rr->rdata);
         break;
     default:
-        rr->rdata = malloc(sizeof(char) * (rr->rdlength + 1));
-        memcpy(rr->rdata, buffer + current_pos + 11, rr->rdlength);
-        rr->rdata[rr->rdlength] = '\0';
+        rr->rdata = malloc(sizeof(char) * BUFSIZ);
+        memset(rr->rdata, 0, BUFSIZ);
+        read_qname(buffer, current_pos + 11, rr->rdata);
+        rr->rdata = (char *)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
         break;
     }
     current_pos += 11 + tmp;
