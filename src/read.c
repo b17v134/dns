@@ -1,6 +1,7 @@
 #include "read.h"
 #include "types.h"
 
+#include <arpa/inet.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -12,15 +13,12 @@ uint8_t read_uint8_t(void *buf)
 
 uint16_t read_uint16_t(void *buf)
 {
-    return (*(uint8_t *)buf) * 0x100 + (*(uint8_t *)(buf + 1));
+    return ntohs(*(uint16_t *)buf);
 }
 
 uint32_t read_uint32_t(void *buf)
 {
-    return (*(uint8_t *)buf) * 0x1000000 +
-           (*(uint8_t *)(buf + 1)) * 0x10000 +
-           (*(uint8_t *)(buf + 2)) * 0x100 +
-           (*(uint8_t *)(buf + 3));
+    return ntohl(*(uint32_t *)buf);
 }
 
 void read_ipv4(void *buf, char *ip)
