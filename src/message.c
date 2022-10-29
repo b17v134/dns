@@ -127,15 +127,31 @@ void free_response(struct response resp)
     for (int i = 0; i < resp.hdr.ancount; i++)
     {
         free(resp.answers[i].name);
+        free(resp.answers[i].rdata);
+    }
+    if (resp.hdr.ancount > 0)
+    {
+        free(resp.answers);
     }
 
     for (int i = 0; i < resp.hdr.nscount; i++)
     {
         free(resp.authority_records[i].name);
+        free(resp.authority_records[i].rdata);
+    }
+    if (resp.hdr.nscount > 0)
+    {
+        free(resp.authority_records);
     }
 
     for (int i = 0; i < resp.hdr.arcount; i++)
     {
         free(resp.additional_records[i].name);
+        free(resp.additional_records[i].rdata);
+    }
+
+    if (resp.hdr.arcount > 0)
+    {
+        free(resp.additional_records);
     }
 }
