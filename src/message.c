@@ -123,6 +123,10 @@ void free_response(struct response resp)
     {
         free(resp.questions[i].qname);
     }
+    if (resp.hdr.qdcount > 0)
+    {
+        free(resp.questions);
+    }
 
     for (int i = 0; i < resp.hdr.ancount; i++)
     {
