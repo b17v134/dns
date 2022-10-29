@@ -86,32 +86,47 @@ int resolv(const struct request r, struct response *rsp)
 
 struct response get_response(void *buffer, int len)
 {
-    struct response result = {0};
+    struct response result;
+
+    memset(&result, 0, sizeof(struct response));
 
     read_header(buffer, &(result.hdr));
 
     int pos = 12;
-    result.questions = malloc(sizeof(struct question) * result.hdr.qdcount);
-    for (int i = 0; i < result.hdr.qdcount; i++)
+    if (result.hdr.qdcount > 0)
     {
-        pos = read_question(buffer, pos, &result.questions[i]);
-    }
-    result.answers = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.ancount);
-    for (int i = 0; i < result.hdr.ancount; i++)
-    {
-        pos = read_resource_record(buffer, pos, &(result.answers[i]));
+        result.questions = malloc(sizeof(struct question) * result.hdr.qdcount);
+        for (int i = 0; i < result.hdr.qdcount; i++)
+        {
+            pos = read_question(buffer, pos, &result.questions[i]);
+        }
     }
 
-    result.authority_records = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.nscount);
-    for (int i = 0; i < result.hdr.nscount; i++)
+    if (result.hdr.ancount > 0)
     {
-        pos = read_resource_record(buffer, pos, &(result.authority_records[i]));
+        result.answers = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.ancount);
+        for (int i = 0; i < result.hdr.ancount; i++)
+        {
+            pos = read_resource_record(buffer, pos, &(result.answers[i]));
+        }
     }
 
-    result.additional_records = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.arcount);
-    for (int i = 0; i < result.hdr.arcount; i++)
+    if (result.hdr.nscount > 0)
     {
-        pos = read_resource_record(buffer, pos, &(result.additional_records[i]));
+        result.authority_records = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.nscount);
+        for (int i = 0; i < result.hdr.nscount; i++)
+        {
+            pos = read_resource_record(buffer, pos, &(result.authority_records[i]));
+        }
+    }
+
+    if (result.hdr.arcount > 0)
+    {
+        result.additional_records = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.arcount);
+        for (int i = 0; i < result.hdr.arcount; i++)
+        {
+            pos = read_resource_record(buffer, pos, &(result.additional_records[i]));
+        }
     }
 
     return result;
