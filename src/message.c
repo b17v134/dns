@@ -2,13 +2,16 @@
 
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <time.h>
 #include <stdlib.h>
 #include <memory.h>
+#include <netdb.h>
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 #define BUF 1024
 
@@ -46,18 +49,15 @@ int resolv(const struct request r, struct response *rsp)
         return -1;
     }
     int sockfd;
-    struct sockaddr_in servaddr;
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+    struct addrinfo hints, *res;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = IPPROTO_UDP;
+    int result = getaddrinfo(r.addr, "53", &hints, &res);
+    if (result != 0)
     {
-        perror("socket creation failed");
         return -1;
     }
-    memset(&servaddr, 0, sizeof(servaddr));
-
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(r.port);
-    servaddr.sin_addr.s_addr = inet_addr(r.addr);
-
+    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     int n;
     unsigned int len;
     struct question q;
@@ -72,10 +72,10 @@ int resolv(const struct request r, struct response *rsp)
         exit(1);
     }
     int s = create_request(&q, buf, 1024);
-    sendto(sockfd, buf, s, MSG_CONFIRM, (const struct sockaddr *)&servaddr, sizeof(servaddr));
+    result = sendto(sockfd, buf, s, MSG_CONFIRM, res->ai_addr, res->ai_addrlen);
     free(buf);
 
-    n = recvfrom(sockfd, (char *)buffer, BUF, MSG_WAITALL, (struct sockaddr *)&servaddr, &len);
+    n = recvfrom(sockfd, (char *)buffer, BUF, MSG_WAITALL, res->ai_addr, &len);
     buffer[n] = '\0';
     close(sockfd);
 
