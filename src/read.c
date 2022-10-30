@@ -91,7 +91,7 @@ int read_question(void *buffer, const int pos, struct question *q)
 int read_qname(void *buffer, const int pos, char *qname)
 {
     int current_pos = pos;
-    uint16_t length;
+    uint8_t length;
     uint16_t tmp_pos = current_pos;
     while ((length = *(uint8_t *)(buffer + tmp_pos)))
     {
