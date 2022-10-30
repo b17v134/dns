@@ -5,11 +5,12 @@ The sample code to use the dns client:
 #include <dns/dns.h>
 #include <stdio.h>
 
-int main(void) {
+int main(void)
+{
 	struct request r = {"10.0.2.3", 53, udp, "github.com", DNS_TYPE_A};
 	struct response resp;
-	int len = resolv(r, &resp);
-	if (len != 0)
+	int result = resolv(r, &resp);
+	if (result != 0)
 	{
 		perror("error");
 	}
@@ -21,4 +22,3 @@ int main(void) {
 
 	return 0;
 }
-
