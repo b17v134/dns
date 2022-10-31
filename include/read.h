@@ -13,5 +13,6 @@ void read_ipv6(void *buf, char *ip);
 void read_header(void *buffer, struct header *hdr);
 int read_question(void *buffer, const int pos, struct question *q);
 int read_resource_record(void *buffer, const int pos, struct resource_record *rr);
+void read_soa(void *buf, const int pos, char *rdata);
 
 #endif
