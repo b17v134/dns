@@ -9,5 +9,5 @@ void strupr(const char *str, char *result)
     {
         result[i] = toupper(str[i]);
     }
-    result[strlen(str) + 1] = '\0';
+    result[strlen(str)] = '\0';
 }
