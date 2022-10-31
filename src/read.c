@@ -62,6 +62,12 @@ void read_header(void *buffer, struct header *hdr)
 int read_question(void *buffer, const int pos, struct question *q)
 {
     char *qname = NULL;
+    qname = malloc(sizeof(char) * BUFSIZ);
+    if (qname == NULL)
+    {
+        perror("Cannot allocate memory");
+        return -1;
+    }
     int current_pos = pos;
     uint8_t length;
 
@@ -69,17 +75,17 @@ int read_question(void *buffer, const int pos, struct question *q)
     {
         if (qname == NULL)
         {
-            qname = (char *)malloc(sizeof(char) * (length + 1));
             memcpy(qname, buffer + current_pos + 1, length);
+            qname[length] = '\0';
         }
         else
         {
-            qname = (char *)realloc(qname, sizeof(char) * (length + 1));
             strncat(qname, buffer + current_pos + 1, length);
         }
         strcat(qname, ".");
         current_pos += length + 1;
     }
+    qname = (char *)realloc(qname, sizeof(char) * (strlen(qname) + 1));
     q->qname = qname;
     q->qtype = read_uint16_t(buffer + current_pos + 1);
     q->qclass = read_uint16_t(buffer + current_pos + 3);
