@@ -99,12 +99,22 @@ int read_qname(void *buffer, const int pos, char *qname)
     int current_pos = pos;
     uint8_t length;
     uint16_t tmp_pos = current_pos;
+    int is_pointer = 0; // no pointer
     while ((length = *(uint8_t *)(buffer + tmp_pos)))
     {
         if (((length & 0b11000000) >> 6) == 0b11)
         {
             tmp_pos = read_uint16_t(buffer + tmp_pos) - 0b1100000000000000;
             length = *(uint8_t *)(buffer + tmp_pos);
+            // current_pos += 1;
+            is_pointer = 1;
+        }
+        else
+        {
+            if (is_pointer == 0)
+            {
+                current_pos += length + 1;
+            }
         }
         strncat(qname, buffer + tmp_pos + 1, length);
         strcat(qname, ".");
@@ -116,6 +126,7 @@ int read_qname(void *buffer, const int pos, char *qname)
 
 int read_resource_record(void *buffer, const int pos, struct resource_record *rr)
 {
+
     char *qname;
     int current_pos = pos;
     qname = malloc(sizeof(char) * BUFSIZ);
@@ -138,6 +149,12 @@ int read_resource_record(void *buffer, const int pos, struct resource_record *rr
         rr->rdata = malloc(sizeof(char) * 50); // @todo: fix size
         read_ipv6(buffer + current_pos + 11, rr->rdata);
         break;
+    case DNS_TYPE_SOA:
+        rr->rdata = malloc(sizeof(char) * BUFSIZ);
+        memset(rr->rdata, 0, BUFSIZ);
+        read_soa(buffer, current_pos + 11, rr->rdata);
+        rr->rdata = (char *)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
+        break;
     default:
         rr->rdata = malloc(sizeof(char) * BUFSIZ);
         memset(rr->rdata, 0, BUFSIZ);
@@ -148,4 +165,30 @@ int read_resource_record(void *buffer, const int pos, struct resource_record *rr
     current_pos += 11 + tmp;
 
     return current_pos;
+}
+
+void read_soa(void *buf, const int pos, char *rdata)
+{
+    int cur_pos = read_qname(buf, pos, rdata);
+    strcat(rdata, " ");
+    char *rname;
+    rname = malloc(sizeof(char) * BUFSIZ);
+    cur_pos = read_qname(buf, cur_pos + 1, rname);
+    strcat(rdata, rname);
+    strcat(rdata, " ");
+    free(rname);
+    for (int i = 0; i < 5; i++)
+    {
+        uint32_t item = read_uint32_t(buf + cur_pos + 1);
+        char *str_item;
+        str_item = malloc(sizeof(char) * BUFSIZ);
+        sprintf(str_item, "%d", item);
+        strcat(rdata, str_item);
+        if (i != 4)
+        {
+            strcat(rdata, " ");
+        }
+        free(str_item);
+        cur_pos += 4;
+    }
 }
