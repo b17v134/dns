@@ -50,6 +50,7 @@ int resolv(const struct request r, struct response *rsp)
     }
     int sockfd;
     struct addrinfo hints, *res;
+    memset(&hints, 0, sizeof(hints));
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
     int result = getaddrinfo(r.addr, "53", &hints, &res);
