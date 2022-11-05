@@ -5,14 +5,14 @@
 static PyObject *method_resolv(PyObject *self, PyObject *args)
 {
     const struct request r;
-    struct response *rsp;
+    struct response rsp;
 
-    if (!PyArg_ParseTuple(args, "w#O", &r, rsp))
+    if (!PyArg_ParseTuple(args, "00", &r, &rsp))
     {
         return NULL;
     }
 
-    return PyLong_FromLong(resolv(r, rsp));
+    return PyLong_FromLong(resolv(r, &rsp));
 }
 
 static PyMethodDef dnsMethods[] = {
