@@ -2,13 +2,13 @@ from setuptools import setup, Extension
 
 def main():
     setup(
-        name="dns",
+        name="pydns",
         version="0.0.1",
         description="Python interface for the dns C library",
         author="b17v134",
         ext_modules=[
             Extension(
-                "dns",
+                "pydns",
                 libraries=['dns'],
                 sources = ['dns.c']
                 )

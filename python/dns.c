@@ -28,7 +28,7 @@ static struct PyModuleDef dnsmodule = {
     dnsMethods,
 };
 
-PyMODINIT_FUNC PyInit_dns(void)
+PyMODINIT_FUNC PyInit_pydns(void)
 {
     return PyModule_Create(&dnsmodule);
 }
