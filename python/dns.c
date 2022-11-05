@@ -22,8 +22,8 @@ static PyMethodDef dnsMethods[] = {
 
 static struct PyModuleDef dnsmodule = {
     PyModuleDef_HEAD_INIT,
-    "resolv",
-    "resolv function",
+    "pydns",
+    "pydns",
     -1,
     dnsMethods,
 };

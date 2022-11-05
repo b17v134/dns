@@ -1,4 +1,5 @@
 from setuptools import setup, Extension
+import os.path
 
 def main():
     setup(
@@ -13,6 +14,8 @@ def main():
                 sources = ['dns.c']
                 )
         ],
+        packages=['dns'],
+        package_dir={'dns': os.path.join("src", "dns")}
     )
 
 if __name__ == "__main__":
