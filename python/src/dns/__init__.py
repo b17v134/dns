@@ -103,13 +103,6 @@ class CHeader(Structure):
         ('arcount', c_uint16),
     ]
 
-def Resolv(request: Request, response: Response)->int:
-    cRequest = CRequest()
-    cRequest.addr = request.Address.encode('utf-8')
-    cRequest.port = request.Port
-    cRequest.pr = request.Protocol
-    cRequest.type = request.Type
-    r = c_char_p()
-    result = pydns.resolv(cRequest, r)
-
+def Resolv(request: Request)->int:
+    result = pydns.resolv(request.Address, request.Port, request.Protocol, request.Qname, request.Type)
     return result

@@ -1,18 +1,33 @@
 #include <Python.h>
 
 #include <dns/dns.h>
+#include <stdio.h>
 
 static PyObject *method_resolv(PyObject *self, PyObject *args)
 {
-    const struct request r;
+    char *addr;
+    uint16_t port;
+    int pr;
+    char *qname;
+    int16_t type;
     struct response rsp;
-
-    if (!PyArg_ParseTuple(args, "00", &r, &rsp))
+    if (!PyArg_ParseTuple(args, "sHish", &addr, &port, &pr, &qname, &type))
     {
         return NULL;
     }
 
-    return PyLong_FromLong(resolv(r, &rsp));
+    struct request r =
+        {
+            addr,
+            port,
+            pr,
+            qname,
+            type};
+    printf("addr = %s\n", addr);
+    // return PyLong_FromLong(resolv(r, &rsp));
+    int result = resolv(r, &rsp);
+    print_response(rsp);
+    return PyLong_FromLong(result);
 }
 
 static PyMethodDef dnsMethods[] = {
