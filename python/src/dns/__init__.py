@@ -145,22 +145,13 @@ class Header:
     """Number of resource records in the additional records section."""
     Arcount: int
 
-class Question:
-    Qname: str
-    Qtype: int
-    Qclass: int
+class Question(dict):
+    def __init__(self, qname = "", qtype = "", qclass = ""):
+        dict.__init__(self, Qname = qname, Qtype = qtype, Qclass = qclass)
 
-class ResourceRecord:
-    Name: str
-    Type: int
-    Class: int
-    Ttl: int
-    Rdlength: int
-    Rdata: str
-
-    def toString(self):
-        return "%s\t%d\t%d\t%d\t%d\t%s" % (self.Name, self.Type, self.Class, self.Ttl, self.Rdlength, self.Rdata)
-
+class ResourceRecord(dict):
+    def __init__(self, name ="", type=0, cls=0, ttl=0, rdlength=0, rdata=""):
+        dict.__init__(self, Name=name, Type=type, Class=cls, Ttl=ttl, Rdlength=rdlength, Rdata=rdata)
 
 class Protocol(Enum):
     TCP: 0
@@ -174,11 +165,8 @@ class Request:
     Type: int
 
 class Response(dict):
-    Hdr: Header
-    Questions: List[Question]
-    Answers: List[ResourceRecord]
-    AuthorityRecords: List[ResourceRecord]
-    AdditionalRecords: List[ResourceRecord]
+    def __init__(self, hdr = "", questions = [], answers = [], authorityRecords = [],  additionalRecords = []):
+        dict.__init__(self, Hdr = hdr, Questions = questions, Answers = answers, AuthorityRecords = authorityRecords, AdditionalRecords = additionalRecords)
 
 class CRequest(Structure):
     _fields_ = [
@@ -246,36 +234,72 @@ def Resolv(request: Request)->Response:
         cresponse.header.arcount,
     ))
 
-    response.Hdr = Header()
-    response.Hdr.Id = cresponse.header.id
-    response.Hdr.Qr = cresponse.header.qr
-    response.Hdr.Opcode = cresponse.header.opcode
-    response.Hdr.Aa = cresponse.header.aa
-    response.Hdr.Tc = cresponse.header.tc
-    response.Hdr.Rd = cresponse.header.rd
-    response.Hdr.Ra = cresponse.header.ra
-    response.Hdr.Z = cresponse.header.z
-    response.Hdr.Rcode = cresponse.header.rcode
-    response.Hdr.Qdcount = cresponse.header.qdcount
-    response.Hdr.Ancount = cresponse.header.ancount
-    response.Hdr.Nscount = cresponse.header.nscount
-    response.Hdr.Arcount = cresponse.header.arcount
+    header = Header()
+    header.Id = cresponse.header.id
+    header.Qr = cresponse.header.qr
+    header.Opcode = cresponse.header.opcode
+    header.Aa = cresponse.header.aa
+    header.Tc = cresponse.header.tc
+    header.Rd = cresponse.header.rd
+    header.Ra = cresponse.header.ra
+    header.Z = cresponse.header.z
+    header.Rcode = cresponse.header.rcode
+    header.Qdcount = cresponse.header.qdcount
+    header.Ancount = cresponse.header.ancount
+    header.Nscount = cresponse.header.nscount
+    header.Arcount = cresponse.header.arcount
 
-    for i in range(0, g[0].header.qdcount):
+    questions = []
+    for i in range(0, header.Qdcount):
         question:CQuestion = ctypes.cast(cresponse.question, POINTER(CQuestion))
         print(question[0].qname.decode('ascii'), question[0].qtype, question[0].qclass) 
+        question:Question = Question(
+            qname = question[i].qname.decode('ascii'),
+            qtype = question[i].qtype,
+            qclass = question[i].qclass,
+        )
+        questions.append(question)
 
-    response.AuthorityRecords = []
-    print(response.Hdr.Nscount)
-    for i in range(0, response.Hdr.Nscount):
+
+    answers = []
+    for i in range(0, header.Ancount):
+        cResourceRecord:CResourceRecord = ctypes.cast(cresponse.answers, POINTER(CResourceRecord))
+        resourceRecord:ResourceRecord = ResourceRecord(
+            cResourceRecord[i].name.decode('ascii'),
+            cResourceRecord[i].type,
+            getattr(cResourceRecord[i],"class"),
+            cResourceRecord[i].ttl,
+            cResourceRecord[i].rdlength,
+            cResourceRecord[i].rdata.decode('ascii'),
+        )
+        answers.append(resourceRecord)
+
+    authorityRecords = []
+    for i in range(0, header.Nscount):
         cResourceRecord:CResourceRecord = ctypes.cast(cresponse.authority_records, POINTER(CResourceRecord))
-        resourceRecord:ResourceRecord = ResourceRecord()
-        resourceRecord.Name = cResourceRecord[i].name.decode('ascii')
-        resourceRecord.Type = cResourceRecord[i].type
-        resourceRecord.Class = getattr(cResourceRecord[i],"class")
-        resourceRecord.Ttl = cResourceRecord[i].ttl
-        resourceRecord.Rdlength = cResourceRecord[i].rdlength
-        resourceRecord.Rdata = cResourceRecord[i].rdata.decode('ascii')
-        response.AuthorityRecords.append(resourceRecord)
-        print(resourceRecord.toString())
+        resourceRecord:ResourceRecord = ResourceRecord(
+            cResourceRecord[i].name.decode('ascii'),
+            cResourceRecord[i].type,
+            getattr(cResourceRecord[i],"class"),
+            cResourceRecord[i].ttl,
+            cResourceRecord[i].rdlength,
+            cResourceRecord[i].rdata.decode('ascii'),
+        )
+        authorityRecords.append(resourceRecord)
+
+    additionalRecords = []
+    for i in range(0, header.Arcount):
+        cResourceRecord:CResourceRecord = ctypes.cast(cresponse.additional_records, POINTER(CResourceRecord))
+        resourceRecord:ResourceRecord = ResourceRecord(
+            cResourceRecord[i].name.decode('ascii'),
+            cResourceRecord[i].type,
+            getattr(cResourceRecord[i],"class"),
+            cResourceRecord[i].ttl,
+            cResourceRecord[i].rdlength,
+            cResourceRecord[i].rdata.decode('ascii'),
+        )
+        additionalRecords.append(resourceRecord)
+
+    response:Response = Response([], questions, answers, authorityRecords, additionalRecords)
+ 
     return response
