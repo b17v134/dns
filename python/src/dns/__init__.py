@@ -105,45 +105,39 @@ DNS_TYPE_TA = 32768
 DNS_TYPE_DLV = 32769
 
 
-class Header:
-    """Identifier."""
-    Id: int
-
-    """A one bit field that specifies whether this message is a query (0), or a response (1)."""
-    Qr: int
-
-    """A four bit field that specifies kind of query."""
-    Opcode: int
-
-    """Authoritative Answer"""
-    Aa: int
-
-    """Specifies that this message was truncated."""
-    Tc: int
-
-    """Recursion Desired."""
-    Rd: int
-
-    """Recursion Available."""
-    Ra: int
-
-    """Reserved for future use. Must be zero in all queries and responses."""
-    Z: int
-
-    """Response code."""
-    Rcode: int
-
-    """Number of entries in the question section."""
-    Qdcount: int
-
-    """Number of resource records in the answer section"""
-    Ancount: int
-
-    """Number of name server resource records in the authority records section."""
-    Nscount: int
-
-    """Number of resource records in the additional records section."""
-    Arcount: int
+class Header(dict):
+    def __init__(
+        self, 
+        Id: int = 0,
+        Qr: int = 0,
+        Opcode: int = 0,
+        Aa: int = 0,
+        Tc: int = 0,
+        Rd: int = 0,
+        Ra: int = 0,
+        Z: int = 0,
+        Rcode: int = 0,
+        Qdcount: int = 0,
+        Ancount: int = 0,
+        Nscount: int = 0,
+        Arcount: int = 0,
+    ):
+        dict.__init__(
+            self,
+            Id = Id,
+            Qr = Qr,
+            Opcode = Opcode,
+            Aa = Aa,
+            Tc = Tc,
+            Rd = Rd,
+            Ra = Ra,
+            Z = Z,
+            Rcode = Rcode,
+            Qdcount = Qdcount,
+            Ancount = Ancount,
+            Nscount = Nscount,
+            Arcount = Arcount, 
+        )
 
 class Question(dict):
     def __init__(self, qname = "", qtype = "", qclass = ""):
@@ -225,32 +219,25 @@ def Resolv(request: Request)->Response:
     response:Response = Response()
     g:CResponse = ctypes.cast(result, POINTER(CResponse))
     cresponse: CResponse = g[0]
-    print(g[0].header.id)
-    print(
-        "question: %d\nanswer: %d\nauthority: %d\nadditional: %d\n" %(
+
+    header = Header(
+        cresponse.header.id,
+        cresponse.header.qr,
+        cresponse.header.opcode,
+        cresponse.header.aa,
+        cresponse.header.tc,
+        cresponse.header.rd,
+        cresponse.header.ra,
+        cresponse.header.z,
+        cresponse.header.rcode,
         cresponse.header.qdcount,
         cresponse.header.ancount,
         cresponse.header.nscount,
         cresponse.header.arcount,
-    ))
-
-    header = Header()
-    header.Id = cresponse.header.id
-    header.Qr = cresponse.header.qr
-    header.Opcode = cresponse.header.opcode
-    header.Aa = cresponse.header.aa
-    header.Tc = cresponse.header.tc
-    header.Rd = cresponse.header.rd
-    header.Ra = cresponse.header.ra
-    header.Z = cresponse.header.z
-    header.Rcode = cresponse.header.rcode
-    header.Qdcount = cresponse.header.qdcount
-    header.Ancount = cresponse.header.ancount
-    header.Nscount = cresponse.header.nscount
-    header.Arcount = cresponse.header.arcount
+    )
 
     questions = []
-    for i in range(0, header.Qdcount):
+    for i in range(0, header["Qdcount"]):
         question:CQuestion = ctypes.cast(cresponse.question, POINTER(CQuestion))
         print(question[0].qname.decode('ascii'), question[0].qtype, question[0].qclass) 
         question:Question = Question(
@@ -262,7 +249,7 @@ def Resolv(request: Request)->Response:
 
 
     answers = []
-    for i in range(0, header.Ancount):
+    for i in range(0, header["Ancount"]):
         cResourceRecord:CResourceRecord = ctypes.cast(cresponse.answers, POINTER(CResourceRecord))
         resourceRecord:ResourceRecord = ResourceRecord(
             cResourceRecord[i].name.decode('ascii'),
@@ -275,7 +262,7 @@ def Resolv(request: Request)->Response:
         answers.append(resourceRecord)
 
     authorityRecords = []
-    for i in range(0, header.Nscount):
+    for i in range(0, header["Nscount"]):
         cResourceRecord:CResourceRecord = ctypes.cast(cresponse.authority_records, POINTER(CResourceRecord))
         resourceRecord:ResourceRecord = ResourceRecord(
             cResourceRecord[i].name.decode('ascii'),
@@ -288,7 +275,7 @@ def Resolv(request: Request)->Response:
         authorityRecords.append(resourceRecord)
 
     additionalRecords = []
-    for i in range(0, header.Arcount):
+    for i in range(0, header["Arcount"]):
         cResourceRecord:CResourceRecord = ctypes.cast(cresponse.additional_records, POINTER(CResourceRecord))
         resourceRecord:ResourceRecord = ResourceRecord(
             cResourceRecord[i].name.decode('ascii'),
@@ -300,6 +287,6 @@ def Resolv(request: Request)->Response:
         )
         additionalRecords.append(resourceRecord)
 
-    response:Response = Response([], questions, answers, authorityRecords, additionalRecords)
+    response:Response = Response(header, questions, answers, authorityRecords, additionalRecords)
  
     return response

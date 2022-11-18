@@ -25,9 +25,7 @@ static PyObject *method_resolv(PyObject *self, PyObject *args)
             pr,
             qname,
             type};
-    printf("addr = '%s'\nport = %d\npr = %d\nqname = '%s'\ntype = %d\n", addr, port, pr, qname, type);
     int result = resolv(r, rsp);
-    print_response(*rsp);
     return PyLong_FromVoidPtr(rsp);
 }
 
