@@ -1,12 +1,7 @@
 from ctypes import *
-from typing import List
-import ctypes
+from enum import Enum
 
 import pydns
-
-import json
-
-from enum import Enum 
 
 # https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-4
 DNS_TYPE_ERROR = 0
@@ -104,7 +99,6 @@ DNS_TYPE_AMTREPLAY = 260
 DNS_TYPE_TA = 32768
 DNS_TYPE_DLV = 32769
 
-
 class Header(dict):
     def __init__(
         self, 
@@ -159,8 +153,22 @@ class Request:
     Type: int
 
 class Response(dict):
-    def __init__(self, hdr = "", questions = [], answers = [], authorityRecords = [],  additionalRecords = []):
-        dict.__init__(self, Hdr = hdr, Questions = questions, Answers = answers, AuthorityRecords = authorityRecords, AdditionalRecords = additionalRecords)
+    def __init__(
+        self, 
+        hdr = "", 
+        questions = [], 
+        answers = [], 
+        authorityRecords = [],  
+        additionalRecords = [],
+    ):
+        dict.__init__(
+            self, 
+            Hdr = hdr, 
+            Questions = questions, 
+            Answers = answers, 
+            AuthorityRecords = authorityRecords, 
+            AdditionalRecords = additionalRecords,
+        )
 
 class CRequest(Structure):
     _fields_ = [
@@ -217,7 +225,7 @@ class CResourceRecord(Structure):
 def Resolv(request: Request)->Response:
     result = pydns.resolv(request.Address, request.Port, request.Protocol, request.Qname, request.Type)
     response:Response = Response()
-    g:CResponse = ctypes.cast(result, POINTER(CResponse))
+    g:CResponse = cast(result, POINTER(CResponse))
     cresponse: CResponse = g[0]
 
     header = Header(
@@ -238,7 +246,7 @@ def Resolv(request: Request)->Response:
 
     questions = []
     for i in range(0, header["Qdcount"]):
-        question:CQuestion = ctypes.cast(cresponse.question, POINTER(CQuestion))
+        question:CQuestion = cast(cresponse.question, POINTER(CQuestion))
         print(question[0].qname.decode('ascii'), question[0].qtype, question[0].qclass) 
         question:Question = Question(
             qname = question[i].qname.decode('ascii'),
@@ -250,7 +258,7 @@ def Resolv(request: Request)->Response:
 
     answers = []
     for i in range(0, header["Ancount"]):
-        cResourceRecord:CResourceRecord = ctypes.cast(cresponse.answers, POINTER(CResourceRecord))
+        cResourceRecord:CResourceRecord = cast(cresponse.answers, POINTER(CResourceRecord))
         resourceRecord:ResourceRecord = ResourceRecord(
             cResourceRecord[i].name.decode('ascii'),
             cResourceRecord[i].type,
@@ -263,7 +271,7 @@ def Resolv(request: Request)->Response:
 
     authorityRecords = []
     for i in range(0, header["Nscount"]):
-        cResourceRecord:CResourceRecord = ctypes.cast(cresponse.authority_records, POINTER(CResourceRecord))
+        cResourceRecord:CResourceRecord = cast(cresponse.authority_records, POINTER(CResourceRecord))
         resourceRecord:ResourceRecord = ResourceRecord(
             cResourceRecord[i].name.decode('ascii'),
             cResourceRecord[i].type,
@@ -276,7 +284,7 @@ def Resolv(request: Request)->Response:
 
     additionalRecords = []
     for i in range(0, header["Arcount"]):
-        cResourceRecord:CResourceRecord = ctypes.cast(cresponse.additional_records, POINTER(CResourceRecord))
+        cResourceRecord:CResourceRecord = cast(cresponse.additional_records, POINTER(CResourceRecord))
         resourceRecord:ResourceRecord = ResourceRecord(
             cResourceRecord[i].name.decode('ascii'),
             cResourceRecord[i].type,
