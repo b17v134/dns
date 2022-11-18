@@ -1,3 +1,4 @@
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
 #include <dns/dns.h>
@@ -10,7 +11,8 @@ static PyObject *method_resolv(PyObject *self, PyObject *args)
     int pr;
     char *qname;
     int16_t type;
-    struct response rsp;
+    struct response *rsp;
+    rsp = malloc(sizeof(struct response));
     if (!PyArg_ParseTuple(args, "sHish", &addr, &port, &pr, &qname, &type))
     {
         return NULL;
@@ -23,11 +25,10 @@ static PyObject *method_resolv(PyObject *self, PyObject *args)
             pr,
             qname,
             type};
-    printf("addr = %s\n", addr);
-    // return PyLong_FromLong(resolv(r, &rsp));
-    int result = resolv(r, &rsp);
-    print_response(rsp);
-    return PyLong_FromLong(result);
+    printf("addr = '%s'\nport = %d\npr = %d\nqname = '%s'\ntype = %d\n", addr, port, pr, qname, type);
+    int result = resolv(r, rsp);
+    print_response(*rsp);
+    return PyLong_FromVoidPtr(rsp);
 }
 
 static PyMethodDef dnsMethods[] = {

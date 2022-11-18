@@ -51,6 +51,7 @@ void read_ipv6(void *buf, char *ip)
 void read_header(void *buffer, struct header *hdr)
 {
     hdr->id = read_uint16_t(buffer);
+    printf("id = %d\n", hdr->id);
     uint16_t flags = read_uint16_t(buffer + 2);
     printf("%d\n", flags);
     hdr->qdcount = read_uint16_t(buffer + 4);

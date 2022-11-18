@@ -1,5 +1,6 @@
 from ctypes import *
 from typing import List
+import ctypes
 
 import pydns
 
@@ -200,6 +201,53 @@ class CHeader(Structure):
         ('arcount', c_uint16),
     ]
 
-def Resolv(request: Request)->int:
+class CResponse(Structure):
+    _fields_ = [
+        ('header', CHeader),
+        ('question', c_void_p),
+        ('answers', c_void_p),
+        ('authority_records', c_void_p),
+        ('additional_records', c_void_p),
+    ]
+
+class CQuestion(Structure):
+    _fields_ = [ 
+        ('qname', c_char_p),
+        ('qtype', c_uint16),
+        ('qclass', c_uint16),
+    ]
+
+def Resolv(request: Request):
     result = pydns.resolv(request.Address, request.Port, request.Protocol, request.Qname, request.Type)
-    return result
+    response:Response = Response()
+    g:CResponse = ctypes.cast(result, POINTER(CResponse))
+    cresponse: CResponse = g[0]
+    print(g[0].header.id)
+    print(
+        "question: %d\nanswer: %d\nauthority: %d\nadditional: %d\n" %(
+        cresponse.header.qdcount,
+        cresponse.header.ancount,
+        cresponse.header.nscount,
+        cresponse.header.arcount,
+    ))
+
+    response.Hdr = Header()
+    response.Hdr.Id = cresponse.header.id
+    response.Hdr.Qr = cresponse.header.qr
+    response.Hdr.Opcode = cresponse.header.opcode
+    response.Hdr.Aa = cresponse.header.aa
+    response.Hdr.Tc = cresponse.header.tc
+    response.Hdr.Rd = cresponse.header.rd
+    response.Hdr.Ra = cresponse.header.ra
+    response.Hdr.Z = cresponse.header.z
+    response.Hdr.Rcode = cresponse.header.rcode
+    response.Hdr.Qdcount = cresponse.header.qdcount
+    response.Hdr.Ancount = cresponse.header.ancount
+    response.Hdr.Nscount = cresponse.header.nscount
+    response.Hdr.Arcount = cresponse.header.arcount
+
+    for i in range(0, g[0].header.qdcount):
+        question:CQuestion = ctypes.cast(cresponse.question, POINTER(CQuestion))
+        print(question[0].qname.decode('ascii'), question[0].qtype, question[0].qclass) 
+
+    print(response)
