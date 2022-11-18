@@ -4,6 +4,8 @@ import ctypes
 
 import pydns
 
+import json
+
 from enum import Enum 
 
 # https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-4
@@ -151,10 +153,14 @@ class Question:
 class ResourceRecord:
     Name: str
     Type: int
-    Class: int
+    #Class: int
     Ttl: int
     Rdlength: int
     Rdata: str
+
+    def toString(self):
+        return "%s\t%d\t%d\t%d\t%s" % (self.Name, self.Type, self.Ttl, self.Rdlength, self.Rdata)
+
 
 class Protocol(Enum):
     TCP: 0
@@ -167,7 +173,7 @@ class Request:
     Qname: str
     Type: int
 
-class Response:
+class Response(dict):
     Hdr: Header
     Questions: List[Question]
     Answers: List[ResourceRecord]
@@ -186,7 +192,6 @@ class CRequest(Structure):
 class CHeader(Structure):
     _fields_ = [
         ('id', c_uint16),
-        ('qr', c_uint8),
         ('qr', c_uint8),
         ('opcode', c_uint8),
         ('aa', c_uint8),
@@ -217,7 +222,17 @@ class CQuestion(Structure):
         ('qclass', c_uint16),
     ]
 
-def Resolv(request: Request):
+class CResourceRecord(Structure):
+    _fields_ = [
+        ('name', c_char_p),
+        ('type', c_uint16),
+        ('class', c_uint16),
+        ('ttl', c_uint32),
+        ('rdlength', c_uint16),
+        ('rdata', c_char_p),
+    ]
+
+def Resolv(request: Request)->Response:
     result = pydns.resolv(request.Address, request.Port, request.Protocol, request.Qname, request.Type)
     response:Response = Response()
     g:CResponse = ctypes.cast(result, POINTER(CResponse))
@@ -250,4 +265,18 @@ def Resolv(request: Request):
         question:CQuestion = ctypes.cast(cresponse.question, POINTER(CQuestion))
         print(question[0].qname.decode('ascii'), question[0].qtype, question[0].qclass) 
 
-    print(response)
+    response.AuthorityRecords = []
+    print(response.Hdr.Nscount)
+    for i in range(0, response.Hdr.Nscount):
+        cResourceRecord:CResourceRecord = ctypes.cast(cresponse.authority_records, POINTER(CResourceRecord))
+        resourceRecord:ResourceRecord = ResourceRecord()
+        resourceRecord.Name = cResourceRecord[i].name.decode('ascii')
+        resourceRecord.Type = cResourceRecord[i].type
+        #resourceRecord.Class = cResourceRecord[0].class
+        resourceRecord.Ttl = cResourceRecord[i].ttl
+        resourceRecord.Rdlength = cResourceRecord[i].rdlength
+        resourceRecord.Rdata = cResourceRecord[i].rdata.decode('ascii')
+        response.AuthorityRecords.append(resourceRecord)
+        print(resourceRecord.toString())
+
+    return response
