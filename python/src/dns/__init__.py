@@ -153,13 +153,13 @@ class Question:
 class ResourceRecord:
     Name: str
     Type: int
-    #Class: int
+    Class: int
     Ttl: int
     Rdlength: int
     Rdata: str
 
     def toString(self):
-        return "%s\t%d\t%d\t%d\t%s" % (self.Name, self.Type, self.Ttl, self.Rdlength, self.Rdata)
+        return "%s\t%d\t%d\t%d\t%d\t%s" % (self.Name, self.Type, self.Class, self.Ttl, self.Rdlength, self.Rdata)
 
 
 class Protocol(Enum):
@@ -272,11 +272,10 @@ def Resolv(request: Request)->Response:
         resourceRecord:ResourceRecord = ResourceRecord()
         resourceRecord.Name = cResourceRecord[i].name.decode('ascii')
         resourceRecord.Type = cResourceRecord[i].type
-        #resourceRecord.Class = cResourceRecord[0].class
+        resourceRecord.Class = getattr(cResourceRecord[i],"class")
         resourceRecord.Ttl = cResourceRecord[i].ttl
         resourceRecord.Rdlength = cResourceRecord[i].rdlength
         resourceRecord.Rdata = cResourceRecord[i].rdata.decode('ascii')
         response.AuthorityRecords.append(resourceRecord)
         print(resourceRecord.toString())
-
     return response
