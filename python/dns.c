@@ -26,11 +26,31 @@ static PyObject *method_resolv(PyObject *self, PyObject *args)
             qname,
             type};
     int result = resolv(r, rsp);
+
+    if (result != 0)
+    {
+        return NULL;
+    }
     return PyLong_FromVoidPtr(rsp);
+}
+
+static PyObject *method_free_response(PyObject *self, PyObject *args)
+{
+    void *tmp;
+
+    if (!PyArg_ParseTuple(args, "L", &tmp))
+    {
+        return NULL;
+    }
+
+    struct response *rsp = tmp;
+    free_response(*rsp);
+    return PyLong_FromVoidPtr(tmp);
 }
 
 static PyMethodDef dnsMethods[] = {
     {"resolv", method_resolv, METH_VARARGS, "resolv function"},
+    {"free_response", method_free_response, METH_VARARGS, "free_response function"},
     {NULL, NULL, 0, NULL},
 };
 

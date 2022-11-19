@@ -297,4 +297,5 @@ def Resolv(request: Request)->Response:
 
     response:Response = Response(header, questions, answers, authorityRecords, additionalRecords)
  
+    pydns.free_response(result)
     return response
