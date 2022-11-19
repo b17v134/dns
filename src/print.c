@@ -7,7 +7,16 @@
 void print_header(const struct header hdr)
 {
     printf(
-        "question: %d\nanswer: %d\nauthority: %d\nadditional: %d\n",
+        "id: %d\nresponse: %d\nopcode: %d\nauthoritative: %d\ntruncated: %d\nrecursion desired: %d\nrecursion available: %d\nreserved: %d\nrcode: %d\nquestion: %d\nanswer: %d\nauthority: %d\nadditional: %d\n",
+        hdr.id,
+        hdr.qr,
+        hdr.opcode,
+        hdr.aa,
+        hdr.tc,
+        hdr.rd,
+        hdr.ra,
+        hdr.z,
+        hdr.rcode,
         hdr.qdcount,
         hdr.ancount,
         hdr.nscount,

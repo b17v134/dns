@@ -51,9 +51,17 @@ void read_ipv6(void *buf, char *ip)
 void read_header(void *buffer, struct header *hdr)
 {
     hdr->id = read_uint16_t(buffer);
-    printf("id = %d\n", hdr->id);
+
     uint16_t flags = read_uint16_t(buffer + 2);
-    printf("%d\n", flags);
+    hdr->qr = (flags & (1 << 15)) >> 15;
+    hdr->opcode = (flags & (0b1111 << 11)) >> 11;
+    hdr->aa = (flags & (1 << 10)) >> 10;
+    hdr->tc = (flags & (1 << 9)) >> 9;
+    hdr->rd = (flags & (1 << 8)) >> 8;
+    hdr->ra = (flags & (1 << 7)) >> 7;
+    hdr->z = (flags & (0b111 << 4)) >> 4;
+    hdr->rcode = flags & 0b1111;
+
     hdr->qdcount = read_uint16_t(buffer + 4);
     hdr->ancount = read_uint16_t(buffer + 6);
     hdr->nscount = read_uint16_t(buffer + 8);
