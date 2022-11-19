@@ -37,6 +37,7 @@ int write_qname(void *buf, const char *qname)
         }
     }
     *(uint8_t *)(buf) = chunk_length;
+    *(uint8_t *)(buf + length + 1) = 0;
     return length + 1;
 }
 
