@@ -24,8 +24,15 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.6])
 
 AC_ARG_ENABLE(
     [python],
-    (AS_HELP_STRING([--enable-python], [Build python package [default=no]]),
+    AS_HELP_STRING([--enable-python], [Build python package [default=no]]),
     [enable_python=$enablevar],
     [enable_python=no]
 )
+
+if test "x$enable_python" != "xno" ; then
+    AM_PATH_PYTHON([3.8],, [:])
+    AX_PYTHON_DEVEL()
+    AX_PYTHON_MODULE([setuptools], [true])
+fi
+
 AC_OUTPUT
