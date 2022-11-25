@@ -15,6 +15,7 @@ LT_INIT
 
 AC_CONFIG_FILES([
     Makefile
+    python/Makefile
     src/Makefile 
     tests/Makefile
 ])
