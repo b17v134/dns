@@ -1,0 +1,13 @@
+FROM docker.io/library/ubuntu:22.10
+
+RUN apt update
+RUN apt install -y \
+    autoconf \
+    automake \
+    check \
+    gcc \
+    libtool \
+    make \
+    pkg-config \
+    libpython3-dev \
+    python3
