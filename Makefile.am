@@ -1,4 +1,4 @@
-SUBDIRS = python src tests
+SUBDIRS = src tests python
 ACLOCAL_AMFLAGS=-I m4
 
 .PHONY: docker rpm
