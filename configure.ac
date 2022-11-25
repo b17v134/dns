@@ -35,4 +35,6 @@ if test "x$enable_python" != "xno" ; then
     AX_PYTHON_MODULE([setuptools], [true])
 fi
 
+AM_CONDITIONAL([ENABLE_PYTHON], [test "x$enable_python" != "xno"])
+
 AC_OUTPUT
