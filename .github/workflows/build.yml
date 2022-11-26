@@ -5,8 +5,8 @@ jobs:
     strategy:
       matrix:
         version: ['22.10']
-      container:
-        image: ubuntu:${{ matrix.version }}
+    container:
+      image: ubuntu:${{ matrix.version }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up container
