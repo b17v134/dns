@@ -21,7 +21,7 @@ jobs:
             make \
             musl-dev \
             pkgconfig \
-            py3-dev \
+            python3-dev \
             py3-pip \
             py3-wheel
       - name: build and install
