@@ -9,7 +9,6 @@ AC_PROG_INSTALL
 
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AM_PROG_AR
-LT_INIT
 
 LT_INIT
 
@@ -21,7 +20,6 @@ AC_CONFIG_FILES([
 ])
 
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.6])
-
 
 AC_ARG_ENABLE(
     [python],
