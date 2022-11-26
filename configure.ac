@@ -31,7 +31,8 @@ AC_ARG_ENABLE(
 if test "x$enable_python" != "xno" ; then
     AM_PATH_PYTHON([3.8],, [:])
     AX_PYTHON_DEVEL()
-    AX_PYTHON_MODULE([setuptools], [true])
+    AX_PYTHON_MODULE([pip], [true])
+    AX_PYTHON_MODULE([wheel], [true])
 fi
 
 AM_CONDITIONAL([ENABLE_PYTHON], [test "x$enable_python" != "xno"])
