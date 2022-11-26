@@ -30,6 +30,34 @@ jobs:
           ./configure --enable-python --prefix=/usr
           make check
           make install
+  fedora:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ['38']
+    container:
+      image: fedora:${{ matrix.version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up container
+        run: |
+          dnf install -y \
+            autoconf \
+            automake \
+            check-devel \
+            gcc \
+            libtool \
+            make \
+            pkgconfig \
+            python3-devel \
+            python3-pip \
+            python3-wheel
+      - name: build and install
+        run: |
+          autoreconf -i
+          ./configure --enable-python --prefix=/usr
+          make check
+          make install
   ubuntu:
     runs-on: ubuntu-latest
     strategy:
