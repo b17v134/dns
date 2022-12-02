@@ -1,7 +1,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include <dns/dns.h>
+#include <dns.h>
 #include <stdio.h>
 
 static PyObject *method_resolv(PyObject *self, PyObject *args)
