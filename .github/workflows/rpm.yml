@@ -1,0 +1,33 @@
+name: rpm
+on: [push]
+jobs:
+  fedora:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ['38']
+    container:
+      image: fedora:${{ matrix.version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up container
+        run: |
+          dnf install -y \
+            autoconf \
+            automake \
+            check-devel \
+            gcc \
+            libtool \
+            make \
+            pkgconfig \
+            python3-devel \
+            python3-pip \
+            python3-wheel \
+            rpm-build
+      - name: make rpm
+        run: |
+          autoreconf -i
+          make dist
+          mkdir -p ~/rpmbuild/SOURCES/
+          cp dns-*.tar.gz ~/rpmbuild/SOURCES/
+          make rpm
