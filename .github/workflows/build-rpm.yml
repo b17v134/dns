@@ -1,4 +1,4 @@
-name: rpm
+name: build-rpm
 on: [push]
 jobs:
   fedora:
@@ -27,6 +27,7 @@ jobs:
       - name: make rpm
         run: |
           autoreconf -i
+          ./configure
           make dist
           mkdir -p ~/rpmbuild/SOURCES/
           cp dns-*.tar.gz ~/rpmbuild/SOURCES/
