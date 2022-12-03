@@ -10,4 +10,5 @@ RUN dnf install -y \
     pkgconfig \
     python3-devel \
     python3-pip \
-    python3-wheel
+    python3-wheel \
+    rpm-build
