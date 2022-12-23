@@ -11,10 +11,13 @@ const char *version = "0.0.1";
 static int help_flag;
 static int verbose_flag;
 static int version_flag;
+static enum protocol pr = udp;
 
 static uint16_t type = DNS_TYPE_A;
 static char *server;
 static int port = 53;
+static char *client_cert = NULL;
+static char *ca = NULL;
 
 static struct option long_options[] = {
     {"help", no_argument, &help_flag, 1},
@@ -28,6 +31,7 @@ void print_version();
 void print_usage();
 void set_server(char *srv);
 void set_port(char *port_arg);
+void set_protocol(char *port_arg);
 
 int main(int argc, char *argv[])
 {
@@ -36,7 +40,7 @@ int main(int argc, char *argv[])
     while (1)
     {
         int option_index = 0;
-        c = getopt_long(argc, argv, "hvVs:t:p:", long_options, &option_index);
+        c = getopt_long(argc, argv, "hvVs:t:p:r:A:E:", long_options, &option_index);
 
         /* Detect the end of the options. */
         if (c == -1)
@@ -56,11 +60,20 @@ int main(int argc, char *argv[])
             printf("\n");
             break;
 
+        case 'A':
+            ca = strdup(optarg);
+            break;
+        case 'E':
+            client_cert = strdup(optarg);
+            break;
         case 'h':
             print_usage();
             break;
         case 'p':
             set_port(optarg);
+            break;
+        case 'r':
+            set_protocol(optarg);
             break;
         case 'v':
             verbose_flag = 1;
@@ -98,7 +111,7 @@ int main(int argc, char *argv[])
         while (optind < argc)
         {
             char *qname = argv[optind++];
-            struct request r = {server, port, udp, qname, type};
+            struct request r = {server, port, pr, qname, type, ca, client_cert};
             char *buffer = malloc(sizeof(char) * 1024);
             if (buffer == NULL)
             {
@@ -136,13 +149,16 @@ void print_version()
 void print_usage()
 {
     puts("Usage: resolv [options...] <value>\n\
- -c, --class         Query class [default: IN]\n\
- -h, --help          Show help and exit\n\
- -s, --server <ip>   Server ip\n\
- -p, --port <number> Port number [default: 53]\n\
- -t, --type          Query type [default: A]\n\
- -v, --verbose       Verbose mode\n\
- -V, --version       Show version number and exit\n\
+ -A <file>                  CA certificate\n\
+ -E, --cert <certificate>   Client certificate\n\
+ -c, --class                Query class [default: IN]\n\
+ -h, --help                 Show help and exit\n\
+ -s, --server <ip>          Server ip\n\
+ -p, --port <number>        Port number [default: 53]\n\
+ -r, --protocol <name>      Protocol (tcp, udp, tls)\n\
+ -t, --type                 Query type [default: A]\n\
+ -v, --verbose              Verbose mode\n\
+ -V, --version              Show version number and exit\n\
 ");
     exit(0);
 }
@@ -168,4 +184,28 @@ void set_port(char *port_arg)
     }
 
     port = p;
+}
+
+void set_protocol(char *port_arg)
+{
+    if (strcmp(port_arg, "tcp") == 0)
+    {
+        pr = tcp;
+        return;
+    }
+
+    if (strcmp(port_arg, "udp") == 0)
+    {
+        pr = udp;
+        return;
+    }
+
+    if (strcmp(port_arg, "tls") == 0)
+    {
+        pr = tls;
+        return;
+    }
+
+    perror("Incorrect protocol.");
+    exit(EXIT_FAILURE);
 }

@@ -69,6 +69,7 @@ enum protocol
 {
     tcp,
     udp,
+    tls,
 };
 
 struct request
@@ -78,6 +79,8 @@ struct request
     enum protocol pr;
     char *qname;
     uint16_t type;
+    char *ca;
+    char *client_certificate;
 };
 
 struct response
@@ -92,6 +95,8 @@ struct response
 uint16_t get_flags(uint8_t qr, uint8_t rd);
 uint8_t create_request(struct question *question, void *buf, uint16_t buf_size);
 int resolv(const struct request r, struct response *rsp);
+int resolv_tls(const struct request r, struct response *rsp);
+int resolv_udp(const struct request r, struct response *rsp);
 struct response get_response(void *buffer, int len);
 void free_response(struct response rsp);
 
