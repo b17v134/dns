@@ -144,6 +144,7 @@ class ResourceRecord(dict):
 class Protocol(Enum):
     TCP: 0
     UDP: 1
+    TLS: 2
 
 class Request:
     Address: str
@@ -151,6 +152,8 @@ class Request:
     Protocol: Protocol
     Qname: str
     Type: int
+    Ca: str
+    Certificate: str
 
 class Response(dict):
     def __init__(
@@ -177,6 +180,8 @@ class CRequest(Structure):
         ('pr', c_int),
         ('qname', c_char_p),
         ('type', c_int16),
+        ('ca', c_char_p),
+        ('certificate', c_char_p)
     ]
 
 class CHeader(Structure):
@@ -223,7 +228,16 @@ class CResourceRecord(Structure):
     ]
 
 def Resolv(request: Request)->Response:
-    result = pydns.resolv(request.Address, request.Port, request.Protocol, request.Qname, request.Type)
+    result = pydns.resolv(
+        request.Address, 
+        request.Port, 
+        request.Protocol,  
+        request.Qname, 
+        request.Type, 
+        getattr(request, "Ca", ""), 
+        getattr(request, "Certificate", ""),
+    )
+
     response:Response = Response()
     g:CResponse = cast(result, POINTER(CResponse))
     cresponse: CResponse = g[0]

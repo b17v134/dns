@@ -150,7 +150,7 @@ void print_usage()
 {
     puts("Usage: resolv [options...] <value>\n\
  -A <file>                  CA certificate\n\
- -E, --cert <certificate>   Client certificate\n\
+ -E, --cert <certificate>   Certificate\n\
  -c, --class                Query class [default: IN]\n\
  -h, --help                 Show help and exit\n\
  -s, --server <ip>          Server ip\n\

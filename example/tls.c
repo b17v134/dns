@@ -3,7 +3,7 @@
 
 int main(void)
 {
-    struct request r = {"dns.server", 853, tls, "github.com", DNS_TYPE_A, "rootCA.crt", "client.pem"};
+    struct request r = {"dns.server", 853, tls, "github.com", DNS_TYPE_A, "rootCA.crt", "certificate.pem"};
     struct response resp;
     int result = resolv(r, &resp);
     if (result != 0)

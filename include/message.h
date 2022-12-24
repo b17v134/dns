@@ -80,7 +80,7 @@ struct request
     char *qname;
     uint16_t type;
     char *ca;
-    char *client_certificate;
+    char *certificate;
 };
 
 struct response

@@ -56,7 +56,7 @@ int resolv(const struct request r, struct response *rsp)
     return resolv_tls(r, rsp);
 }
 
-bool ssl_config(SSL_CTX *ctx, char *ca, char *client_certificate)
+bool ssl_config(SSL_CTX *ctx, char *ca, char *certificate)
 {
     SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
     if (!SSL_CTX_load_verify_locations(ctx, ca, NULL))
@@ -65,7 +65,7 @@ bool ssl_config(SSL_CTX *ctx, char *ca, char *client_certificate)
         return false;
     }
 
-    if (SSL_CTX_use_certificate_file(ctx, client_certificate, SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_certificate_file(ctx, certificate, SSL_FILETYPE_PEM) <= 0)
     {
         ERR_print_errors_fp(stderr);
         return false;
@@ -119,7 +119,7 @@ int resolv_tls(const struct request r, struct response *rsp)
 
     SSL *ssl = SSL_new(ctx);
     SSL_set_fd(ssl, server);
-    if (!ssl_config(ctx, r.ca, r.client_certificate))
+    if (!ssl_config(ctx, r.ca, r.certificate))
     {
         return -1;
     }
@@ -207,7 +207,6 @@ int resolv_udp(const struct request r, struct response *rsp)
         exit(1);
     }
     int s = create_request(&q, buf, 1024);
-    printf("length = %d\n", s);
     result = sendto(sockfd, buf, s, MSG_CONFIRM, res->ai_addr, res->ai_addrlen);
     free(buf);
 
