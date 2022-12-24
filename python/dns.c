@@ -11,9 +11,12 @@ static PyObject *method_resolv(PyObject *self, PyObject *args)
     int pr;
     char *qname;
     int16_t type;
+    char *ca;
+    char *certificate;
     struct response *rsp;
+
     rsp = malloc(sizeof(struct response));
-    if (!PyArg_ParseTuple(args, "sHish", &addr, &port, &pr, &qname, &type))
+    if (!PyArg_ParseTuple(args, "sHishss", &addr, &port, &pr, &qname, &type, &ca, &certificate))
     {
         return NULL;
     }
@@ -24,7 +27,10 @@ static PyObject *method_resolv(PyObject *self, PyObject *args)
             port,
             pr,
             qname,
-            type};
+            type,
+            ca,
+            certificate,
+        };
     int result = resolv(r, rsp);
 
     if (result != 0)

@@ -1,4 +1,4 @@
-AM_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
+AM_CFLAGS = -Wall -Werror -I$(top_srcdir)/include -lssl -lcrypto
 
 lib_LTLIBRARIES = libdns.la
 libdns_la_SOURCES =                     \
