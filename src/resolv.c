@@ -16,8 +16,8 @@ static enum protocol pr = udp;
 static uint16_t type = DNS_TYPE_A;
 static char *server;
 static int port = 53;
-static char *client_cert = NULL;
 static char *ca = NULL;
+static char *certificate = NULL;
 
 static struct option long_options[] = {
     {"help", no_argument, &help_flag, 1},
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
             ca = strdup(optarg);
             break;
         case 'E':
-            client_cert = strdup(optarg);
+            certificate = strdup(optarg);
             break;
         case 'h':
             print_usage();
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
         while (optind < argc)
         {
             char *qname = argv[optind++];
-            struct request r = {server, port, pr, qname, type, ca, client_cert};
+            struct request r = {server, port, pr, qname, type, ca, certificate};
             char *buffer = malloc(sizeof(char) * 1024);
             if (buffer == NULL)
             {
