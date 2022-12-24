@@ -19,6 +19,7 @@ jobs:
             gcc \
             libtool \
             make \
+            openssl-devel \
             pkgconfig \
             python3-devel \
             python3-pip \
