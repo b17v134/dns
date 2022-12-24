@@ -9,5 +9,6 @@ RUN apk add \
     libtool \
     make \
     musl-dev \
+    openssl-dev \
     pkgconfig \
     python3-dev

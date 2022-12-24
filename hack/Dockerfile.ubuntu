@@ -6,6 +6,7 @@ RUN apt install -y \
     automake \
     check \
     gcc \
+    libssl-dev \
     libtool \
     make \
     pkg-config \
