@@ -1,4 +1,5 @@
-AM_CFLAGS = -Wall -Werror -I$(top_srcdir)/include -lssl -lcrypto
+LINKER_FLAGS=`pkg-config --libs openssl` 
+AM_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libdns.la
 libdns_la_SOURCES =                     \
@@ -9,8 +10,8 @@ libdns_la_SOURCES =                     \
     types.c                             \
     utils.c                             \
     write.c
+libdns_la_LDFLAGS = -module -avoid-version -export-dynamic $(LINKER_FLAGS)
 
-libdns_la_LDFLAGS = -module -avoid-version -export-dynamic
 otherincludedir = $(includedir)/dns
 otherinclude_HEADERS =                    \
     $(top_builddir)/include/classes.h     \
