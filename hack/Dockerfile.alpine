@@ -5,6 +5,7 @@ RUN apk add \
     autoconf \
     automake \
     check-dev \
+    clang \
     gcc \
     libtool \
     make \

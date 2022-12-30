@@ -4,6 +4,7 @@ RUN dnf install -y \
     autoconf \
     automake \
     check-devel \
+    clang \
     gcc \
     libtool \
     make \
