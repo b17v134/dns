@@ -6,6 +6,7 @@ jobs:
     strategy:
       matrix:
         version: ['3.16.2']
+        cc: ['clang', 'gcc']
     container:
       image: alpine:${{ matrix.version }}
     steps:
@@ -16,6 +17,7 @@ jobs:
             autoconf \
             automake \
             check-dev \
+            clang \
             gcc \
             libtool \
             make \
@@ -28,7 +30,7 @@ jobs:
       - name: build and install
         run: |
           autoreconf -i
-          ./configure --enable-python --prefix=/usr
+          CC=${{ matrix.cc }} ./configure --enable-python --prefix=/usr
           make check
           make install
   fedora:
@@ -36,6 +38,7 @@ jobs:
     strategy:
       matrix:
         version: ['38']
+        cc: ['clang', 'gcc']
     container:
       image: fedora:${{ matrix.version }}
     steps:
@@ -46,6 +49,7 @@ jobs:
             autoconf \
             automake \
             check-devel \
+            clang \
             gcc \
             libtool \
             make \
@@ -57,7 +61,7 @@ jobs:
       - name: build and install
         run: |
           autoreconf -i
-          ./configure --enable-python --prefix=/usr
+          CC=${{ matrix.cc }} ./configure --enable-python --prefix=/usr
           make check
           make install
   ubuntu:
@@ -65,6 +69,7 @@ jobs:
     strategy:
       matrix:
         version: ['22.10']
+        cc: ['clang', 'gcc']
     container:
       image: ubuntu:${{ matrix.version }}
     steps:
@@ -76,6 +81,7 @@ jobs:
             autoconf \
             automake \
             check \
+            clang \
             gcc \
             libssl-dev \
             libtool \
@@ -88,6 +94,6 @@ jobs:
       - name: build and install
         run: |
           autoreconf -i
-          ./configure --enable-python --prefix=/usr
+          CC=${{ matrix.cc }} ./configure --enable-python --prefix=/usr
           make check
           make install
