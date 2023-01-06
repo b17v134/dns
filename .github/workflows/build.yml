@@ -17,6 +17,8 @@ jobs:
             autoconf \
             automake \
             check-dev \
+            clang \
+            gcc \
             libtool \
             make \
             musl-dev \
@@ -24,8 +26,7 @@ jobs:
             pkgconfig \
             python3-dev \
             py3-pip \
-            py3-wheel \
-            ${{ matrix.cc }}
+            py3-wheel
       - name: build and install
         run: |
           autoreconf -i
@@ -48,14 +49,15 @@ jobs:
             autoconf \
             automake \
             check-devel \
+            clang \
+            gcc \
             libtool \
             make \
             openssl-devel \
             pkgconfig \
             python3-devel \
             python3-pip \
-            python3-wheel \
-            ${{ matrix.cc }}
+            python3-wheel
       - name: build and install
         run: |
           autoreconf -i
@@ -79,6 +81,8 @@ jobs:
             autoconf \
             automake \
             check \
+            clang \
+            gcc \
             libssl-dev \
             libtool \
             make \
@@ -86,8 +90,7 @@ jobs:
             libpython3-dev \
             python3 \
             python3-pip \
-            python3-wheel \
-            ${{ matrix.cc }}
+            python3-wheel
       - name: build and install
         run: |
           autoreconf -i
