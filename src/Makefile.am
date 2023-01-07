@@ -1,5 +1,8 @@
+CFLAGS_JSON_C = `pkg-config --cflags json-c`
+LDFLAGS_JSON_C = `pkg-config --libs json-c`
+
 LINKER_FLAGS=`pkg-config --libs openssl` 
-AM_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
+AM_CFLAGS = -Wall -Werror -I$(top_srcdir)/include $(CFLAGS_JSON_C)
 
 lib_LTLIBRARIES = libdns.la
 libdns_la_SOURCES =                     \
@@ -10,7 +13,7 @@ libdns_la_SOURCES =                     \
     types.c                             \
     utils.c                             \
     write.c
-libdns_la_LDFLAGS = -module -avoid-version -export-dynamic $(LINKER_FLAGS)
+libdns_la_LDFLAGS = -module -avoid-version -export-dynamic $(LINKER_FLAGS) $(LDFLAGS_JSON_C)
 
 otherincludedir = $(includedir)/dns
 otherinclude_HEADERS =                    \

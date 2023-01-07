@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 
+#include <json-c/json.h>
+
 void print_header(const struct header hdr)
 {
     printf(
@@ -63,4 +65,49 @@ void print_response(const struct response resp)
     {
         print_resource_record(resp.additional_records[i]);
     }
+}
+
+void print_json_response(const struct response resp)
+{
+    json_object *items;
+
+    json_object *root = json_object_new_object();
+    if (!root)
+    {
+        exit(1);
+    }
+
+    items = json_object_new_object();
+    json_object_object_add(root, "header", items);
+
+    json_object_object_add(items, "id", json_object_new_int(resp.hdr.id));
+    json_object_object_add(items, "response", json_object_new_int(resp.hdr.qr));
+    json_object_object_add(items, "opcode", json_object_new_int(resp.hdr.opcode));
+    json_object_object_add(items, "authoritative", json_object_new_int(resp.hdr.aa));
+    json_object_object_add(items, "truncated", json_object_new_int(resp.hdr.tc));
+    json_object_object_add(items, "recursion desired", json_object_new_int(resp.hdr.rd));
+    json_object_object_add(items, "recursion available", json_object_new_int(resp.hdr.ra));
+    json_object_object_add(items, "reserved", json_object_new_int(resp.hdr.z));
+    json_object_object_add(items, "rcode", json_object_new_int(resp.hdr.rcode));
+    json_object_object_add(items, "question", json_object_new_int(resp.hdr.qdcount));
+    json_object_object_add(items, "answer", json_object_new_int(resp.hdr.ancount));
+    json_object_object_add(items, "authority", json_object_new_int(resp.hdr.nscount));
+    json_object_object_add(items, "additional", json_object_new_int(resp.hdr.arcount));
+
+    json_object *questions = json_object_new_array();
+    json_object_object_add(root, "questions", questions);
+    for (int i = 0; i < resp.hdr.qdcount; i++)
+    {
+        json_object *item = json_object_new_object();
+        json_object *qname = json_object_new_string(resp.questions[i].qname);
+        json_object_object_add(item, "qname", qname);
+        json_object *qclass = json_object_new_string(int_to_dns_class(resp.questions[i].qclass));
+        json_object_object_add(item, "qclass", qclass);
+        json_object *qtype = json_object_new_string(int_to_dns_type(resp.questions[i].qtype));
+        json_object_object_add(item, "qtype", qtype);
+        json_object_array_add(questions, item);
+    }
+
+    printf("%s\n", json_object_to_json_string_ext(root, JSON_C_TO_STRING_PRETTY));
+    json_object_put(root);
 }
