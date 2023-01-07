@@ -128,6 +128,8 @@ int main(int argc, char *argv[])
             {
                 print_response(resp);
                 putchar('\n');
+                print_json_response(resp);
+                puts("test");
                 free_response(resp);
             }
         }
