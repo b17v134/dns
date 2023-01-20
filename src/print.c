@@ -67,6 +67,23 @@ void print_response(const struct response resp)
     }
 }
 
+json_object *json_resource_record(const struct resource_record record)
+{
+    json_object *item = json_object_new_object();
+    json_object *name = json_object_new_string(record.name);
+    json_object_object_add(item, "name", name);
+    json_object *ttl = json_object_new_int(record.ttl);
+    json_object_object_add(item, "ttl", ttl);
+    json_object *qclass = json_object_new_string(int_to_dns_class(record.class));
+    json_object_object_add(item, "class", qclass);
+    json_object *qtype = json_object_new_string(int_to_dns_type(record.type));
+    json_object_object_add(item, "type", qtype);
+    json_object *rdata = json_object_new_string(record.rdata);
+    json_object_object_add(item, "rdata", rdata);
+
+    return item;
+}
+
 void print_json_response(const struct response resp)
 {
     json_object *items;
@@ -106,6 +123,27 @@ void print_json_response(const struct response resp)
         json_object *qtype = json_object_new_string(int_to_dns_type(resp.questions[i].qtype));
         json_object_object_add(item, "qtype", qtype);
         json_object_array_add(questions, item);
+    }
+
+    json_object *answers = json_object_new_array();
+    json_object_object_add(root, "answers", answers);
+    for (int i = 0; i < resp.hdr.ancount; i++)
+    {
+        json_object_array_add(answers, json_resource_record(resp.answers[i]));
+    }
+
+    json_object *authority_records = json_object_new_array();
+    json_object_object_add(root, "authority records", authority_records);
+    for (int i = 0; i < resp.hdr.nscount; i++)
+    {
+        json_object_array_add(authority_records, json_resource_record(resp.authority_records[i]));
+    }
+
+    json_object *additional_records = json_object_new_array();
+    json_object_object_add(root, "additional records", additional_records);
+    for (int i = 0; i < resp.hdr.arcount; i++)
+    {
+        json_object_array_add(additional_records, json_resource_record(resp.additional_records[i]));
     }
 
     printf("%s\n", json_object_to_json_string_ext(root, JSON_C_TO_STRING_PRETTY));
