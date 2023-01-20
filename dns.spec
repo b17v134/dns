@@ -17,7 +17,7 @@ dns
 
 %package -n python3-dns
 Summary: python interface to DNS C library
-BuildRequires: python3-devel python3-pip python3-wheel
+BuildRequires: json-c-devel python3-devel python3-pip python3-wheel
 Requires: dns
 
 %description -n python3-dns
