@@ -6,9 +6,13 @@
 #include <stdint.h>
 #include <string.h>
 
+#define OUTPUT_FORMAT_PLAIN 0
+#define OUTPUT_FORMAT_JSON 1
+
 const char *version = "0.0.1";
 
 static int help_flag;
+static int output_format = OUTPUT_FORMAT_PLAIN;
 static int verbose_flag;
 static int version_flag;
 static enum protocol pr = udp;
@@ -29,6 +33,7 @@ static struct option long_options[] = {
 
 void print_version();
 void print_usage();
+void set_output_format(char *format);
 void set_server(char *srv);
 void set_port(char *port_arg);
 void set_protocol(char *port_arg);
@@ -40,7 +45,7 @@ int main(int argc, char *argv[])
     while (1)
     {
         int option_index = 0;
-        c = getopt_long(argc, argv, "hvVs:t:p:r:A:E:", long_options, &option_index);
+        c = getopt_long(argc, argv, "hvVs:t:p:r:A:E:o:", long_options, &option_index);
 
         /* Detect the end of the options. */
         if (c == -1)
@@ -68,6 +73,9 @@ int main(int argc, char *argv[])
             break;
         case 'h':
             print_usage();
+            break;
+        case 'o':
+            set_output_format(optarg);
             break;
         case 'p':
             set_port(optarg);
@@ -126,8 +134,14 @@ int main(int argc, char *argv[])
             }
             else
             {
-                print_response(resp);
-                putchar('\n');
+                if (output_format == OUTPUT_FORMAT_PLAIN)
+                {
+                    print_response(resp);
+                }
+                else
+                {
+                    print_json_response(resp);
+                }
                 free_response(resp);
             }
         }
@@ -154,6 +168,7 @@ void print_usage()
  -c, --class                Query class [default: IN]\n\
  -h, --help                 Show help and exit\n\
  -s, --server <ip>          Server ip\n\
+ -o  <output_format>        Formatting output (json, plain) [default: plain]\n\
  -p, --port <number>        Port number [default: 53]\n\
  -r, --protocol <name>      Protocol (tcp, udp, tls)\n\
  -t, --type                 Query type [default: A]\n\
@@ -161,6 +176,24 @@ void print_usage()
  -V, --version              Show version number and exit\n\
 ");
     exit(0);
+}
+
+void set_output_format(char *format)
+{
+    if (strcmp(format, "plain") == 0)
+    {
+        output_format = OUTPUT_FORMAT_PLAIN;
+        return;
+    }
+
+    if (strcmp(format, "json") == 0)
+    {
+        output_format = OUTPUT_FORMAT_JSON;
+        return;
+    }
+
+    perror("Incorrect output format.");
+    exit(EXIT_FAILURE);
 }
 
 void set_server(char *srv)

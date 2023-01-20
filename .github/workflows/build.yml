@@ -19,6 +19,7 @@ jobs:
             check-dev \
             clang \
             gcc \
+            json-c-dev \
             libtool \
             make \
             musl-dev \
@@ -51,6 +52,7 @@ jobs:
             check-devel \
             clang \
             gcc \
+            json-c-devel \
             libtool \
             make \
             openssl-devel \
@@ -83,6 +85,7 @@ jobs:
             check \
             clang \
             gcc \
+            libjson-c-dev \
             libssl-dev \
             libtool \
             make \
