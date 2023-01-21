@@ -170,7 +170,7 @@ void print_usage()
  -s, --server <ip>          Server ip\n\
  -o  <output_format>        Formatting output (json, plain) [default: plain]\n\
  -p, --port <number>        Port number [default: 53]\n\
- -r, --protocol <name>      Protocol (tcp, udp, tls)\n\
+ -r, --protocol <name>      Protocol (https, tcp, tls, udp) [default: udp]\n\
  -t, --type                 Query type [default: A]\n\
  -v, --verbose              Verbose mode\n\
  -V, --version              Show version number and exit\n\
@@ -221,21 +221,27 @@ void set_port(char *port_arg)
 
 void set_protocol(char *port_arg)
 {
+    if (strcmp(port_arg, "https") == 0)
+    {
+        pr = https;
+        return;
+    }
+
     if (strcmp(port_arg, "tcp") == 0)
     {
         pr = tcp;
         return;
     }
 
-    if (strcmp(port_arg, "udp") == 0)
-    {
-        pr = udp;
-        return;
-    }
-
     if (strcmp(port_arg, "tls") == 0)
     {
         pr = tls;
+        return;
+    }
+
+    if (strcmp(port_arg, "udp") == 0)
+    {
+        pr = udp;
         return;
     }
 

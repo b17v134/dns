@@ -48,6 +48,11 @@ uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
 
 int resolv(const struct request r, struct response *rsp)
 {
+    if (r.pr == https)
+    {
+        return resolv_https(r, rsp);
+    }
+
     if (r.pr == udp)
     {
         return resolv_udp(r, rsp);
@@ -95,6 +100,11 @@ int create_socket(const char *hostname, int port)
         return -1;
     }
     return s;
+}
+
+int resolv_https(const struct request r, struct response *rsp)
+{
+    return 0;
 }
 
 int resolv_tls(const struct request r, struct response *rsp)
