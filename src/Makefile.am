@@ -10,6 +10,7 @@ libdns_la_SOURCES =                     \
     message.c                           \
     print.c                             \
     read.c                              \
+    tls.c                               \
     types.c                             \
     utils.c                             \
     write.c
