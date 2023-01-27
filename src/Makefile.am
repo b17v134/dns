@@ -7,11 +7,13 @@ AM_CFLAGS = -Wall -Werror -I$(top_srcdir)/include $(CFLAGS_JSON_C)
 lib_LTLIBRARIES = libdns.la
 libdns_la_SOURCES =                     \
     classes.c                           \
+    https.c                             \
     message.c                           \
     print.c                             \
     read.c                              \
     tls.c                               \
     types.c                             \
+    udp.c                               \
     utils.c                             \
     write.c
 libdns_la_LDFLAGS = -module -avoid-version -export-dynamic $(LINKER_FLAGS) $(LDFLAGS_JSON_C)
