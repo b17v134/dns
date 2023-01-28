@@ -22,6 +22,7 @@ AC_CONFIG_FILES([
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.6])
 PKG_CHECK_MODULES([JSONC], [json-c])
 PKG_CHECK_MODULES([OPENSSL], [openssl])
+PKG_CHECK_MODULES([NGHTTP2], [libnghttp2])
 
 AC_ARG_ENABLE(
     [python],
