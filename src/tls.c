@@ -71,7 +71,7 @@ int resolv_tls(const struct request r, struct response *rsp)
     }
 
     SSL *ssl = SSL_new(ctx);
-    SSL_set_fd(ssl, server);
+    SSL_set_fd(ssl, server); // @todo: check SSL_set_fd result.
     if (!ssl_config(ctx, r.ca, r.certificate))
     {
         return -1;

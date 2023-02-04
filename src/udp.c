@@ -26,7 +26,7 @@ int resolv_udp(const struct request r, struct response *rsp)
     {
         return -1;
     }
-    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol); // @todo: check return value != -1.
     int n;
     unsigned int len;
     struct question q;
