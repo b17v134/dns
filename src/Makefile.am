@@ -25,7 +25,7 @@ libdns_la_SOURCES =                     \
     udp.c                               \
     utils.c                             \
     write.c
-libdns_la_LDFLAGS = -module -avoid-version -export-dynamic -l:libhttp_parser.a $(LINKER_FLAGS) $(LDFLAGS_JSON_C) $(LDFLAGS_NGHTTP2) $(LDFLAGS_LIBEVENT) $(LDFLAGS_LIBEVENT_OPENSSL)
+libdns_la_LDFLAGS = -module -avoid-version -export-dynamic $(LINKER_FLAGS) $(LDFLAGS_JSON_C) $(LDFLAGS_NGHTTP2) $(LDFLAGS_LIBEVENT) $(LDFLAGS_LIBEVENT_OPENSSL)
 
 otherincludedir = $(includedir)/dns
 otherinclude_HEADERS =                    \
