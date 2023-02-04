@@ -23,16 +23,8 @@ int Response_size;
 
 typedef struct
 {
-    /* The authority portion of the |uri|, not NULL-terminated */
     char *authority;
-    /* The path portion of the |uri|, including query, not
-       NULL-terminated */
     char *path;
-    /* The length of the |authority| */
-    size_t authoritylen;
-    /* The length of the |path| */
-    size_t pathlen;
-    /* The stream ID of this stream */
     int32_t stream_id;
 } http2_stream_data;
 
@@ -49,9 +41,7 @@ static http2_stream_data *create_http2_stream_data(const char *host, const char 
     http2_stream_data *stream_data = malloc(sizeof(http2_stream_data));
 
     stream_data->authority = strdup(host);
-    stream_data->authoritylen = strlen(stream_data->authority);
     stream_data->path = strdup(path);
-    stream_data->pathlen = strlen(stream_data->path);
     stream_data->stream_id = -1;
 
     return stream_data;
@@ -319,8 +309,8 @@ static void submit_request(http2_session_data *session_data)
     nghttp2_nv hdrs[] = {
         MAKE_NV2(":method", "POST"),
         MAKE_NV(":scheme", "https", 5),
-        MAKE_NV(":authority", stream_data->authority, stream_data->authoritylen),
-        MAKE_NV(":path", stream_data->path, stream_data->pathlen),
+        MAKE_NV(":authority", stream_data->authority, strlen(stream_data->authority)),
+        MAKE_NV(":path", stream_data->path, strlen(stream_data->path)),
         MAKE_NV("content-type", content_type, strlen(content_type)),
         MAKE_NV("accept", content_type, strlen(content_type)),
         MAKE_NV("content-length", content_length, strlen(content_length)),
