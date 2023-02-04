@@ -20,9 +20,11 @@ jobs:
             clang \
             gcc \
             json-c-dev \
+            libevent-dev \
             libtool \
             make \
             musl-dev \
+            nghttp2-dev \
             openssl-dev \
             pkgconfig \
             python3-dev \
@@ -53,6 +55,8 @@ jobs:
             clang \
             gcc \
             json-c-devel \
+            libevent-devel \
+            libnghttp2-devel \
             libtool \
             make \
             openssl-devel \
@@ -85,7 +89,9 @@ jobs:
             check \
             clang \
             gcc \
+            libevent-dev \
             libjson-c-dev \
+            libnghttp2-dev \
             libssl-dev \
             libtool \
             make \

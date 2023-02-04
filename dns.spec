@@ -8,7 +8,7 @@ License:	Apache 2
 URL:		https://github.com/b17v134/dns
 Source0:	%{name}-%{version}.tar.gz
 
-BuildRequires:	check-devel openssl-devel
+BuildRequires:	check-devel json-c-devel libevent-devel libnghttp2-devel openssl-devel
 Requires: openssl-libs
 
 %description

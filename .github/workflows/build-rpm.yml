@@ -18,6 +18,8 @@ jobs:
             check-devel \
             gcc \
             json-c-devel \
+            libevent-devel \
+            libnghttp2-devel \
             libtool \
             make \
             openssl-devel \
