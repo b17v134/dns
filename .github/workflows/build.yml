@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ['22.10']
+        version: ['22.10', '23.04']
         cc: ['clang', 'gcc']
     container:
       image: ubuntu:${{ matrix.version }}
