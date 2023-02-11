@@ -55,8 +55,7 @@ static void delete_http2_stream_data(http2_stream_data *stream_data)
 }
 
 /* Initializes |session_data| */
-static http2_session_data *
-create_http2_session_data(struct event_base *evbase)
+static http2_session_data *create_http2_session_data(struct event_base *evbase)
 {
     http2_session_data *session_data = malloc(sizeof(http2_session_data));
 
@@ -87,8 +86,12 @@ static void delete_http2_session_data(http2_session_data *session_data)
     free(session_data);
 }
 
-static void print_header1(FILE *f, const uint8_t *name, size_t namelen,
-                          const uint8_t *value, size_t valuelen)
+static void print_header1(
+    FILE *f,
+    const uint8_t *name,
+    size_t namelen,
+    const uint8_t *value,
+    size_t valuelen)
 {
     fwrite(name, 1, namelen, f);
     fprintf(f, ": ");
@@ -112,8 +115,12 @@ static void print_headers(FILE *f, nghttp2_nv *nva, size_t nvlen)
 /* nghttp2_send_callback. Here we transmit the |data|, |length| bytes,
    to the network. Because we are using libevent bufferevent, we just
    write those bytes into bufferevent buffer. */
-static ssize_t send_callback(nghttp2_session *session, const uint8_t *data,
-                             size_t length, int flags, void *user_data)
+static ssize_t send_callback(
+    nghttp2_session *session,
+    const uint8_t *data,
+    size_t length,
+    int flags,
+    void *user_data)
 {
     http2_session_data *session_data = (http2_session_data *)user_data;
     struct bufferevent *bev = session_data->bev;
@@ -126,10 +133,15 @@ static ssize_t send_callback(nghttp2_session *session, const uint8_t *data,
 
 /* nghttp2_on_header_callback: Called when nghttp2 library emits
    single header name/value pair. */
-static int on_header_callback(nghttp2_session *session,
-                              const nghttp2_frame *frame, const uint8_t *name,
-                              size_t namelen, const uint8_t *value,
-                              size_t valuelen, uint8_t flags, void *user_data)
+static int on_header_callback(
+    nghttp2_session *session,
+    const nghttp2_frame *frame,
+    const uint8_t *name,
+    size_t namelen,
+    const uint8_t *value,
+    size_t valuelen,
+    uint8_t flags,
+    void *user_data)
 {
     http2_session_data *session_data = (http2_session_data *)user_data;
     (void)session;
@@ -154,9 +166,13 @@ static int on_header_callback(nghttp2_session *session,
    is meant to the stream we initiated, print the received data in
    stdout, so that the user can redirect its output to the file
    easily. */
-static int on_data_chunk_recv_callback(nghttp2_session *session, uint8_t flags,
-                                       int32_t stream_id, const uint8_t *data,
-                                       size_t len, void *user_data)
+static int on_data_chunk_recv_callback(
+    nghttp2_session *session,
+    uint8_t flags,
+    int32_t stream_id,
+    const uint8_t *data,
+    size_t len,
+    void *user_data)
 {
     http2_session_data *session_data = (http2_session_data *)user_data;
     (void)session;
@@ -174,8 +190,11 @@ static int on_data_chunk_recv_callback(nghttp2_session *session, uint8_t flags,
    closed. This example program only deals with 1 HTTP request (1
    stream), if it is closed, we send GOAWAY and tear down the
    session */
-static int on_stream_close_callback(nghttp2_session *session, int32_t stream_id,
-                                    uint32_t error_code, void *user_data)
+static int on_stream_close_callback(
+    nghttp2_session *session,
+    int32_t stream_id,
+    uint32_t error_code,
+    void *user_data)
 {
     http2_session_data *session_data = (http2_session_data *)user_data;
     int rv;
@@ -197,9 +216,12 @@ static int on_stream_close_callback(nghttp2_session *session, int32_t stream_id,
 /* NPN TLS extension client callback. We check that server advertised
    the HTTP/2 protocol the nghttp2 library supports. If not, exit
    the program. */
-static int select_next_proto_cb(SSL *ssl, unsigned char **out,
-                                unsigned char *outlen, const unsigned char *in,
-                                unsigned int inlen, void *arg)
+static int select_next_proto_cb(
+    SSL *ssl, unsigned char **out,
+    unsigned char *outlen,
+    const unsigned char *in,
+    unsigned int inlen,
+    void *arg)
 {
     (void)ssl;
     (void)arg;
@@ -459,9 +481,12 @@ static void eventcb(struct bufferevent *bev, short events, void *ptr)
 }
 
 /* Start connecting to the remote peer |host:port| */
-static void initiate_connection(struct event_base *evbase, SSL_CTX *ssl_ctx,
-                                const char *host, uint16_t port,
-                                http2_session_data *session_data)
+static void initiate_connection(
+    struct event_base *evbase,
+    SSL_CTX *ssl_ctx,
+    const char *host,
+    uint16_t port,
+    http2_session_data *session_data)
 {
     int rv;
     struct bufferevent *bev;
