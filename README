@@ -53,7 +53,7 @@ import dns
 request = dns.Request()
 request.Address = "10.0.2.3"
 request.Port = 53
-request.Protocol = 1
+request.Protocol = dns.Protocol.UDP
 request.Qname = "github.com"
 request.Type = dns.DNS_TYPE_A
 
@@ -67,7 +67,7 @@ import dns
 request = dns.Request()
 request.Address = "dns.server"
 request.Port = 853
-request.Protocol = 2
+request.Protocol = dns.Protocol.TLS
 request.Qname = "github.com"
 request.Type = dns.DNS_TYPE_A
 request.Ca = "rootCA.crt"
@@ -75,3 +75,19 @@ request.Certificate = "certificate.pem"
 
 response = dns.Resolv(request)
 print(response) 
+
+DNS over HTTPS example:
+
+import dns
+
+request = dns.Request()
+request.Address = "dns.server"
+request.Port = 443
+request.Protocol = dns.Protocol.HTTPS
+request.Qname = "github.com"
+request.Type = dns.DNS_TYPE_A
+request.Ca = "rootCA.crt"
+request.Certificate = "certificate.pem"
+
+response = dns.Resolv(request)
+print(response)
