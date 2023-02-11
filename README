@@ -2,6 +2,8 @@
 
 The sample code to use the dns client:
 
+DNS over UDP example:
+
 #include <dns/dns.h>
 #include <stdio.h>
 
@@ -46,7 +48,32 @@ int main(void)
     return 0;
 }
 
+DNS over HTTPS example:
+
+#include <dns/dns.h>
+#include <stdio.h>
+
+int main(void)
+{
+    struct request r = {"dns.server", 443, https, "github.com", DNS_TYPE_A, "rootCA.crt", "certificate.pem"};
+    struct response resp;
+    int result = resolv(r, &resp);
+    if (result != 0)
+    {
+        perror("error");
+    }
+    else
+    {
+        print_response(resp);
+        free_response(resp);
+    }
+
+    return 0;
+}
+
 The sample code to use the python package:
+
+DNS over UDP example:
 
 import dns
 
