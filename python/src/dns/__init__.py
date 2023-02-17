@@ -142,9 +142,10 @@ class ResourceRecord(dict):
         dict.__init__(self, Name=name, Type=type, Class=cls, Ttl=ttl, Rdlength=rdlength, Rdata=rdata)
 
 class Protocol(Enum):
-    TCP: 0
-    UDP: 1
-    TLS: 2
+    TCP = 0
+    UDP = 1
+    TLS = 2
+    HTTPS = 3
 
 class Request:
     Address: str
@@ -231,7 +232,7 @@ def Resolv(request: Request)->Response:
     result = pydns.resolv(
         request.Address, 
         request.Port, 
-        request.Protocol,  
+        request.Protocol.value,  
         request.Qname, 
         request.Type, 
         getattr(request, "Ca", ""), 

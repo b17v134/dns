@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ['3.16.3', '3.17.0']
+        version: ['3.16.3', '3.17.1']
         cc: ['clang', 'gcc']
     container:
       image: alpine:${{ matrix.version }}
@@ -20,9 +20,11 @@ jobs:
             clang \
             gcc \
             json-c-dev \
+            libevent-dev \
             libtool \
             make \
             musl-dev \
+            nghttp2-dev \
             openssl-dev \
             pkgconfig \
             python3-dev \
@@ -53,6 +55,8 @@ jobs:
             clang \
             gcc \
             json-c-devel \
+            libevent-devel \
+            libnghttp2-devel \
             libtool \
             make \
             openssl-devel \
@@ -70,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ['22.10']
+        version: ['22.10', '23.04']
         cc: ['clang', 'gcc']
     container:
       image: ubuntu:${{ matrix.version }}
@@ -85,7 +89,9 @@ jobs:
             check \
             clang \
             gcc \
+            libevent-dev \
             libjson-c-dev \
+            libnghttp2-dev \
             libssl-dev \
             libtool \
             make \

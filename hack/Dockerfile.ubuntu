@@ -1,4 +1,4 @@
-FROM docker.io/library/ubuntu:22.10
+FROM docker.io/library/ubuntu:23.04
 
 RUN apt update
 RUN apt install -y \
@@ -7,7 +7,9 @@ RUN apt install -y \
     check \
     clang \
     gcc \
+    libevent-dev \
     libjson-c-dev \
+    libnghttp2-dev \
     libssl-dev \
     libtool \
     make \

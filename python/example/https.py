@@ -2,8 +2,8 @@ import dns
 
 request = dns.Request()
 request.Address = "dns.server"
-request.Port = 853
-request.Protocol = dns.Protocol.TLS
+request.Port = 443
+request.Protocol = dns.Protocol.HTTPS
 request.Qname = "github.com"
 request.Type = dns.DNS_TYPE_A
 request.Ca = "rootCA.crt"
