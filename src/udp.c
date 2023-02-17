@@ -10,7 +10,7 @@
 
 int resolv_udp(const struct request r, struct response *rsp)
 {
-    char *buffer = malloc(sizeof(char) * 4096);
+    void *buffer = malloc(4096);
     if (buffer == NULL)
     {
         perror("Cannot allocate memory");
@@ -26,7 +26,12 @@ int resolv_udp(const struct request r, struct response *rsp)
     {
         return -1;
     }
-    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol); // @todo: check return value != -1.
+    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (sockfd == -1)
+    {
+        perror("Cannot create socket.");
+        exit(EXIT_FAILURE);
+    }
     int n;
     unsigned int len;
     struct question q;
@@ -38,14 +43,13 @@ int resolv_udp(const struct request r, struct response *rsp)
     if (buf == NULL)
     {
         perror("Cannot allocate memory");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     int s = create_request(&q, buf, 1024);
     result = sendto(sockfd, buf, s, MSG_CONFIRM, res->ai_addr, res->ai_addrlen);
     free(buf);
 
-    n = recvfrom(sockfd, (char *)buffer, BUF, MSG_WAITALL, res->ai_addr, &len);
-    buffer[n] = '\0';
+    n = recvfrom(sockfd, buffer, BUF, MSG_WAITALL, res->ai_addr, &len);
     close(sockfd);
 
     *rsp = get_response(buffer, n);
