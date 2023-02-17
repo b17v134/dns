@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ['3.16.3', '3.17.1']
+        version: ['3.16.4', '3.17.2']
         cc: ['clang', 'gcc']
     container:
       image: alpine:${{ matrix.version }}
