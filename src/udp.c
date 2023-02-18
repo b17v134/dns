@@ -30,7 +30,7 @@ int resolv_udp(const struct request r, struct response *rsp)
     if (sockfd == -1)
     {
         perror("Cannot create socket.");
-        exit(EXIT_FAILURE);
+        return -1;
     }
     int n;
     unsigned int len;
@@ -43,7 +43,7 @@ int resolv_udp(const struct request r, struct response *rsp)
     if (buf == NULL)
     {
         perror("Cannot allocate memory");
-        exit(EXIT_FAILURE);
+        return -1;
     }
     int s = create_request(&q, buf, 1024);
     result = sendto(sockfd, buf, s, MSG_CONFIRM, res->ai_addr, res->ai_addrlen);
