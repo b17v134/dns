@@ -531,7 +531,7 @@ static void run(char *host, int port, char *path)
     SSL_CTX_free(ssl_ctx);
 }
 
-int resolv_https(const struct request r, struct response *rsp)
+int resolv_https(const struct request r, void *buffer, size_t *len)
 {
     struct question q = {r.qname, r.type, 1};
 
@@ -549,7 +549,8 @@ int resolv_https(const struct request r, struct response *rsp)
     }
     buf_size = create_request(&q, Buf, 1024);
     run(r.addr, r.port, "/dns-query");
-    *rsp = get_response(Response, Response_size);
+    memcpy(buffer, Response, Response_size);
+    *len = Response_size;
     free(Response);
     free(Buf);
 

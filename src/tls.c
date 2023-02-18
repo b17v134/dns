@@ -50,7 +50,7 @@ int create_socket(const char *hostname, int port)
     return s;
 }
 
-int resolv_tls(const struct request r, struct response *rsp)
+int resolv_tls(const struct request r, void *buffer, size_t *len)
 {
     SSL_library_init();
     OpenSSL_add_all_algorithms();
@@ -122,7 +122,11 @@ int resolv_tls(const struct request r, struct response *rsp)
         ERR_print_errors_fp(stderr);
         return -1;
     }
-    *rsp = get_response(buf, bytes);
+
+    memcpy(buffer, buf, bytes);
+
     SSL_free(ssl);
+    free(buf);
+
     return 0;
 }

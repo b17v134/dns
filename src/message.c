@@ -31,17 +31,37 @@ uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
 
 int resolv(const struct request r, struct response *rsp)
 {
-    if (r.pr == https)
+    void *buffer = malloc(4096);
+    size_t len;
+    int result;
+
+    if (buffer == NULL)
     {
-        return resolv_https(r, rsp);
+        perror("Cannot allocate memory");
+        return -1;
     }
 
-    if (r.pr == udp)
+    switch (r.pr)
     {
-        return resolv_udp(r, rsp);
+    case https:
+        result = resolv_https(r, buffer, &len);
+        break;
+    case tls:
+        result = resolv_tls(r, buffer, &len);
+        break;
+    case udp:
+        result = resolv_udp(r, buffer, &len);
+        break;
+    default:
+        perror("Incorrect protocol");
+        return -1;
+        break;
     }
 
-    return resolv_tls(r, rsp);
+    *rsp = get_response(buffer, len);
+    free(buffer);
+
+    return result;
 }
 
 struct response get_response(void *buffer, int len)
