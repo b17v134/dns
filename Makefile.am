@@ -1,7 +1,7 @@
 SUBDIRS = src tests python
 ACLOCAL_AMFLAGS=-I m4
 
-.PHONY: docker rpm
+.PHONY: autoformat docker format rpm
 
 autoformat:
 	find . -iname *.h -o -iname *.c | xargs clang-format --style=WebKit -i
