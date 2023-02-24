@@ -3,15 +3,12 @@
 
 int main(void)
 {
-    struct request r = {"10.0.2.3", 53, udp, "github.com", DNS_TYPE_A};
+    struct request r = { "10.0.2.3", 53, udp, "github.com", DNS_TYPE_A };
     struct response resp;
     int result = resolv(r, &resp);
-    if (result != 0)
-    {
+    if (result != 0) {
         perror("error");
-    }
-    else
-    {
+    } else {
         print_response(resp);
         free_response(resp);
     }

@@ -1,15 +1,15 @@
 #include "dns.h"
 
 #include <getopt.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
 
 #define OUTPUT_FORMAT_PLAIN 0
 #define OUTPUT_FORMAT_JSON 1
 
-const char *version = "0.0.1";
+const char* version = "0.0.1";
 
 static int help_flag;
 static int output_format = OUTPUT_FORMAT_PLAIN;
@@ -18,43 +18,40 @@ static int version_flag;
 static enum protocol pr = udp;
 
 static uint16_t type = DNS_TYPE_A;
-static char *server;
+static char* server;
 static int port = 53;
-static char *ca = NULL;
-static char *certificate = NULL;
+static char* ca = NULL;
+static char* certificate = NULL;
 
 static struct option long_options[] = {
-    {"help", no_argument, &help_flag, 1},
-    {"server", required_argument, 0, 0},
-    {"type", required_argument, 0, 0},
-    {"verbose", no_argument, &verbose_flag, 1},
-    {"version", no_argument, &version_flag, 1},
+    { "help", no_argument, &help_flag, 1 },
+    { "server", required_argument, 0, 0 },
+    { "type", required_argument, 0, 0 },
+    { "verbose", no_argument, &verbose_flag, 1 },
+    { "version", no_argument, &version_flag, 1 },
 };
 
 void print_version();
 void print_usage();
-void set_output_format(char *format);
-void set_server(char *srv);
-void set_port(char *port_arg);
-void set_protocol(char *port_arg);
+void set_output_format(char* format);
+void set_server(char* srv);
+void set_port(char* port_arg);
+void set_protocol(char* port_arg);
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     int c;
 
-    while (1)
-    {
+    while (1) {
         int option_index = 0;
         c = getopt_long(argc, argv, "hvVs:t:p:r:A:E:o:", long_options, &option_index);
 
         /* Detect the end of the options. */
-        if (c == -1)
-        {
+        if (c == -1) {
             break;
         }
 
-        switch (c)
-        {
+        switch (c) {
         case 0:
             /* If this option set a flag, do nothing else now. */
             if (long_options[option_index].flag != 0)
@@ -101,45 +98,34 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (help_flag)
-    {
+    if (help_flag) {
         print_usage();
     }
 
     if (verbose_flag)
         puts("verbose flag is set");
 
-    if (version_flag)
-    {
+    if (version_flag) {
         print_version();
     }
 
-    if (optind < argc)
-    {
-        while (optind < argc)
-        {
-            char *qname = argv[optind++];
-            struct request r = {server, port, pr, qname, type, ca, certificate};
-            char *buffer = malloc(sizeof(char) * 1024);
-            if (buffer == NULL)
-            {
+    if (optind < argc) {
+        while (optind < argc) {
+            char* qname = argv[optind++];
+            struct request r = { server, port, pr, qname, type, ca, certificate };
+            char* buffer = malloc(sizeof(char) * 1024);
+            if (buffer == NULL) {
                 perror("Cannot allocate memory");
                 exit(1);
             }
             struct response resp;
             int len = resolv(r, &resp);
-            if (len != 0)
-            {
+            if (len != 0) {
                 perror("error");
-            }
-            else
-            {
-                if (output_format == OUTPUT_FORMAT_PLAIN)
-                {
+            } else {
+                if (output_format == OUTPUT_FORMAT_PLAIN) {
                     print_response(resp);
-                }
-                else
-                {
+                } else {
                     print_json_response(resp);
                 }
                 free_response(resp);
@@ -147,8 +133,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (!server)
-    {
+    if (!server) {
         free(server);
     }
     return 0;
@@ -178,16 +163,14 @@ void print_usage()
     exit(0);
 }
 
-void set_output_format(char *format)
+void set_output_format(char* format)
 {
-    if (strcmp(format, "plain") == 0)
-    {
+    if (strcmp(format, "plain") == 0) {
         output_format = OUTPUT_FORMAT_PLAIN;
         return;
     }
 
-    if (strcmp(format, "json") == 0)
-    {
+    if (strcmp(format, "json") == 0) {
         output_format = OUTPUT_FORMAT_JSON;
         return;
     }
@@ -196,22 +179,20 @@ void set_output_format(char *format)
     exit(EXIT_FAILURE);
 }
 
-void set_server(char *srv)
+void set_server(char* srv)
 {
     server = malloc(sizeof(char) + (strlen(optarg) + 1));
-    if (!server)
-    {
+    if (!server) {
         perror("Cannot allocate memory");
         exit(1);
     }
     strcpy(server, optarg);
 }
 
-void set_port(char *port_arg)
+void set_port(char* port_arg)
 {
     int p = atoi(port_arg);
-    if ((p <= 0) || (p > 65535))
-    {
+    if ((p <= 0) || (p > 65535)) {
         perror("Incorrect port number.");
         exit(EXIT_FAILURE);
     }
@@ -219,28 +200,24 @@ void set_port(char *port_arg)
     port = p;
 }
 
-void set_protocol(char *port_arg)
+void set_protocol(char* port_arg)
 {
-    if (strcmp(port_arg, "https") == 0)
-    {
+    if (strcmp(port_arg, "https") == 0) {
         pr = https;
         return;
     }
 
-    if (strcmp(port_arg, "tcp") == 0)
-    {
+    if (strcmp(port_arg, "tcp") == 0) {
         pr = tcp;
         return;
     }
 
-    if (strcmp(port_arg, "tls") == 0)
-    {
+    if (strcmp(port_arg, "tls") == 0) {
         pr = tls;
         return;
     }
 
-    if (strcmp(port_arg, "udp") == 0)
-    {
+    if (strcmp(port_arg, "udp") == 0) {
         pr = udp;
         return;
     }

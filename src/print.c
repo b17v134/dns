@@ -1,5 +1,5 @@
-#include "classes.h"
 #include "print.h"
+#include "classes.h"
 #include "types.h"
 
 #include <stdio.h>
@@ -42,8 +42,7 @@ void print_response(const struct response resp)
     print_header(resp.hdr);
 
     puts("\nquestions:");
-    for (int i = 0; i < resp.hdr.qdcount; i++)
-    {
+    for (int i = 0; i < resp.hdr.qdcount; i++) {
         printf(
             "%s\t\t%s\t%s\n",
             resp.questions[i].qname,
@@ -51,34 +50,31 @@ void print_response(const struct response resp)
             int_to_dns_type(resp.questions[i].qtype));
     }
     puts("\nanswers:");
-    for (int i = 0; i < resp.hdr.ancount; i++)
-    {
+    for (int i = 0; i < resp.hdr.ancount; i++) {
         print_resource_record(resp.answers[i]);
     }
     puts("\nauthority records:");
-    for (int i = 0; i < resp.hdr.nscount; i++)
-    {
+    for (int i = 0; i < resp.hdr.nscount; i++) {
         print_resource_record(resp.authority_records[i]);
     }
     puts("\nadditional records:");
-    for (int i = 0; i < resp.hdr.arcount; i++)
-    {
+    for (int i = 0; i < resp.hdr.arcount; i++) {
         print_resource_record(resp.additional_records[i]);
     }
 }
 
-json_object *json_resource_record(const struct resource_record record)
+json_object* json_resource_record(const struct resource_record record)
 {
-    json_object *item = json_object_new_object();
-    json_object *name = json_object_new_string(record.name);
+    json_object* item = json_object_new_object();
+    json_object* name = json_object_new_string(record.name);
     json_object_object_add(item, "name", name);
-    json_object *ttl = json_object_new_int(record.ttl);
+    json_object* ttl = json_object_new_int(record.ttl);
     json_object_object_add(item, "ttl", ttl);
-    json_object *qclass = json_object_new_string(int_to_dns_class(record.class));
+    json_object* qclass = json_object_new_string(int_to_dns_class(record.class));
     json_object_object_add(item, "class", qclass);
-    json_object *qtype = json_object_new_string(int_to_dns_type(record.type));
+    json_object* qtype = json_object_new_string(int_to_dns_type(record.type));
     json_object_object_add(item, "type", qtype);
-    json_object *rdata = json_object_new_string(record.rdata);
+    json_object* rdata = json_object_new_string(record.rdata);
     json_object_object_add(item, "rdata", rdata);
 
     return item;
@@ -86,11 +82,10 @@ json_object *json_resource_record(const struct resource_record record)
 
 void print_json_response(const struct response resp)
 {
-    json_object *items;
+    json_object* items;
 
-    json_object *root = json_object_new_object();
-    if (!root)
-    {
+    json_object* root = json_object_new_object();
+    if (!root) {
         exit(1);
     }
 
@@ -111,38 +106,34 @@ void print_json_response(const struct response resp)
     json_object_object_add(items, "authority", json_object_new_int(resp.hdr.nscount));
     json_object_object_add(items, "additional", json_object_new_int(resp.hdr.arcount));
 
-    json_object *questions = json_object_new_array();
+    json_object* questions = json_object_new_array();
     json_object_object_add(root, "questions", questions);
-    for (int i = 0; i < resp.hdr.qdcount; i++)
-    {
-        json_object *item = json_object_new_object();
-        json_object *qname = json_object_new_string(resp.questions[i].qname);
+    for (int i = 0; i < resp.hdr.qdcount; i++) {
+        json_object* item = json_object_new_object();
+        json_object* qname = json_object_new_string(resp.questions[i].qname);
         json_object_object_add(item, "qname", qname);
-        json_object *qclass = json_object_new_string(int_to_dns_class(resp.questions[i].qclass));
+        json_object* qclass = json_object_new_string(int_to_dns_class(resp.questions[i].qclass));
         json_object_object_add(item, "qclass", qclass);
-        json_object *qtype = json_object_new_string(int_to_dns_type(resp.questions[i].qtype));
+        json_object* qtype = json_object_new_string(int_to_dns_type(resp.questions[i].qtype));
         json_object_object_add(item, "qtype", qtype);
         json_object_array_add(questions, item);
     }
 
-    json_object *answers = json_object_new_array();
+    json_object* answers = json_object_new_array();
     json_object_object_add(root, "answers", answers);
-    for (int i = 0; i < resp.hdr.ancount; i++)
-    {
+    for (int i = 0; i < resp.hdr.ancount; i++) {
         json_object_array_add(answers, json_resource_record(resp.answers[i]));
     }
 
-    json_object *authority_records = json_object_new_array();
+    json_object* authority_records = json_object_new_array();
     json_object_object_add(root, "authority records", authority_records);
-    for (int i = 0; i < resp.hdr.nscount; i++)
-    {
+    for (int i = 0; i < resp.hdr.nscount; i++) {
         json_object_array_add(authority_records, json_resource_record(resp.authority_records[i]));
     }
 
-    json_object *additional_records = json_object_new_array();
+    json_object* additional_records = json_object_new_array();
     json_object_object_add(root, "additional records", additional_records);
-    for (int i = 0; i < resp.hdr.arcount; i++)
-    {
+    for (int i = 0; i < resp.hdr.arcount; i++) {
         json_object_array_add(additional_records, json_resource_record(resp.additional_records[i]));
     }
 

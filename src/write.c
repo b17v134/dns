@@ -1,47 +1,42 @@
-#include "message.h"
 #include "write.h"
+#include "message.h"
 
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 uint16_t get_flags(uint8_t qr, uint8_t rd)
 {
     return ((qr & 0b1) << 16) + ((rd & 0b1) << 8);
 }
 
-void write_uint16_t(void *buf, uint16_t value)
+void write_uint16_t(void* buf, uint16_t value)
 {
-    *(uint8_t *)(buf) = (value & 0xFF00) >> 8;
-    *(uint8_t *)(buf + 1) = value & 0xFF;
+    *(uint8_t*)(buf) = (value & 0xFF00) >> 8;
+    *(uint8_t*)(buf + 1) = value & 0xFF;
 }
 
-int write_qname(void *buf, const char *qname)
+int write_qname(void* buf, const char* qname)
 {
     int length = strlen(qname);
-    if (qname[length - 1] == '.')
-    {
+    if (qname[length - 1] == '.') {
         length--;
     }
     uint8_t chunk_length = 0;
-    for (int pos = length - 1; pos >= 0; pos--)
-    {
-        if (qname[pos] == '.')
-        {
-            *(uint8_t *)(buf + pos + 1) = chunk_length;
+    for (int pos = length - 1; pos >= 0; pos--) {
+        if (qname[pos] == '.') {
+            *(uint8_t*)(buf + pos + 1) = chunk_length;
             chunk_length = 0;
-        }
-        else
-        {
+        } else {
             chunk_length++;
-            *(char *)(buf + pos + 1) = qname[pos];
+            *(char*)(buf + pos + 1) = qname[pos];
         }
     }
-    *(uint8_t *)(buf) = chunk_length;
-    *(uint8_t *)(buf + length + 1) = 0;
+    *(uint8_t*)(buf) = chunk_length;
+    *(uint8_t*)(buf + length + 1) = 0;
     return length + 1;
 }
 
-int write_header(void *buf, struct header h)
+int write_header(void* buf, struct header h)
 {
     uint16_t flags = get_flags(h.qr, h.rd);
     write_uint16_t(buf, h.id);
@@ -54,7 +49,7 @@ int write_header(void *buf, struct header h)
     return 12;
 }
 
-int write_question(void *buf, struct question *q)
+int write_question(void* buf, struct question* q)
 {
     int length = write_qname(buf, q->qname);
     write_uint16_t(buf + length + 1, q->qtype);

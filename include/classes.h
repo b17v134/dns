@@ -8,7 +8,7 @@
 #define DNS_CLASS_CH 3
 #define DNS_CLASS_HS 4
 
-uint16_t dns_class_to_int(const char *class);
-char *int_to_dns_class(uint16_t class);
+uint16_t dns_class_to_int(const char* class);
+char* int_to_dns_class(uint16_t class);
 
 #endif

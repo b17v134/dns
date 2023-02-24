@@ -21,7 +21,7 @@ struct header create_header()
     return hdr;
 }
 
-uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
+uint8_t create_request(struct question* question, void* buf, uint16_t buf_size)
 {
     struct header r = create_header();
     int header_length = write_header(buf, r);
@@ -29,22 +29,20 @@ uint8_t create_request(struct question *question, void *buf, uint16_t buf_size)
     return header_length + length;
 }
 
-int resolv(const struct request r, struct response *rsp)
+int resolv(const struct request r, struct response* rsp)
 {
-    if (r.pr == https)
-    {
+    if (r.pr == https) {
         return resolv_https(r, rsp);
     }
 
-    if (r.pr == udp)
-    {
+    if (r.pr == udp) {
         return resolv_udp(r, rsp);
     }
 
     return resolv_tls(r, rsp);
 }
 
-struct response get_response(void *buffer, int len)
+struct response get_response(void* buffer, int len)
 {
     struct response result;
 
@@ -53,38 +51,30 @@ struct response get_response(void *buffer, int len)
     read_header(buffer, &(result.hdr));
 
     int pos = 12;
-    if (result.hdr.qdcount > 0)
-    {
+    if (result.hdr.qdcount > 0) {
         result.questions = malloc(sizeof(struct question) * result.hdr.qdcount);
-        for (int i = 0; i < result.hdr.qdcount; i++)
-        {
+        for (int i = 0; i < result.hdr.qdcount; i++) {
             pos = read_question(buffer, pos, &result.questions[i]);
         }
     }
 
-    if (result.hdr.ancount > 0)
-    {
-        result.answers = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.ancount);
-        for (int i = 0; i < result.hdr.ancount; i++)
-        {
+    if (result.hdr.ancount > 0) {
+        result.answers = (struct resource_record*)malloc(sizeof(struct resource_record) * result.hdr.ancount);
+        for (int i = 0; i < result.hdr.ancount; i++) {
             pos = read_resource_record(buffer, pos, &(result.answers[i]));
         }
     }
 
-    if (result.hdr.nscount > 0)
-    {
-        result.authority_records = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.nscount);
-        for (int i = 0; i < result.hdr.nscount; i++)
-        {
+    if (result.hdr.nscount > 0) {
+        result.authority_records = (struct resource_record*)malloc(sizeof(struct resource_record) * result.hdr.nscount);
+        for (int i = 0; i < result.hdr.nscount; i++) {
             pos = read_resource_record(buffer, pos, &(result.authority_records[i]));
         }
     }
 
-    if (result.hdr.arcount > 0)
-    {
-        result.additional_records = (struct resource_record *)malloc(sizeof(struct resource_record) * result.hdr.arcount);
-        for (int i = 0; i < result.hdr.arcount; i++)
-        {
+    if (result.hdr.arcount > 0) {
+        result.additional_records = (struct resource_record*)malloc(sizeof(struct resource_record) * result.hdr.arcount);
+        for (int i = 0; i < result.hdr.arcount; i++) {
             pos = read_resource_record(buffer, pos, &(result.additional_records[i]));
         }
     }
@@ -94,43 +84,35 @@ struct response get_response(void *buffer, int len)
 
 void free_response(struct response resp)
 {
-    for (int i = 0; i < resp.hdr.qdcount; i++)
-    {
+    for (int i = 0; i < resp.hdr.qdcount; i++) {
         free(resp.questions[i].qname);
     }
-    if (resp.hdr.qdcount > 0)
-    {
+    if (resp.hdr.qdcount > 0) {
         free(resp.questions);
     }
 
-    for (int i = 0; i < resp.hdr.ancount; i++)
-    {
+    for (int i = 0; i < resp.hdr.ancount; i++) {
         free(resp.answers[i].name);
         free(resp.answers[i].rdata);
     }
-    if (resp.hdr.ancount > 0)
-    {
+    if (resp.hdr.ancount > 0) {
         free(resp.answers);
     }
 
-    for (int i = 0; i < resp.hdr.nscount; i++)
-    {
+    for (int i = 0; i < resp.hdr.nscount; i++) {
         free(resp.authority_records[i].name);
         free(resp.authority_records[i].rdata);
     }
-    if (resp.hdr.nscount > 0)
-    {
+    if (resp.hdr.nscount > 0) {
         free(resp.authority_records);
     }
 
-    for (int i = 0; i < resp.hdr.arcount; i++)
-    {
+    for (int i = 0; i < resp.hdr.arcount; i++) {
         free(resp.additional_records[i].name);
         free(resp.additional_records[i].rdata);
     }
 
-    if (resp.hdr.arcount > 0)
-    {
+    if (resp.hdr.arcount > 0) {
         free(resp.additional_records);
     }
 }

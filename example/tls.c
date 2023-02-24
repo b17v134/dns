@@ -3,15 +3,12 @@
 
 int main(void)
 {
-    struct request r = {"dns.server", 853, tls, "github.com", DNS_TYPE_A, "rootCA.crt", "certificate.pem"};
+    struct request r = { "dns.server", 853, tls, "github.com", DNS_TYPE_A, "rootCA.crt", "certificate.pem" };
     struct response resp;
     int result = resolv(r, &resp);
-    if (result != 0)
-    {
+    if (result != 0) {
         perror("error");
-    }
-    else
-    {
+    } else {
         print_response(resp);
         free_response(resp);
     }

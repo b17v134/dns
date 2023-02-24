@@ -1,0 +1,30 @@
+name: format
+on: [push]
+jobs:
+  alpine:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:3.17.2
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up container
+        run: |
+          apk add \
+            autoconf \
+            automake \
+            check-dev \
+            clang-extra-tools \
+            gcc \
+            json-c-dev \
+            libevent-dev \
+            libtool \
+            make \
+            musl-dev \
+            nghttp2-dev \
+            openssl-dev \
+            pkgconfig
+      - name: make format
+        run: |
+          autoreconf -i
+          ./configure
+          make format
