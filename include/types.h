@@ -188,7 +188,7 @@
 #define DNS_STR_TYPE_TA "TA"
 #define DNS_STR_TYPE_DLV "DLV"
 
-uint16_t dns_type_to_int(const char *type);
-char *int_to_dns_type(uint16_t type);
+uint16_t dns_type_to_int(const char* type);
+char* int_to_dns_type(uint16_t type);
 
 #endif

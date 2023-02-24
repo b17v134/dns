@@ -4,8 +4,7 @@
 #include <stdint.h>
 
 // https://www.rfc-editor.org/rfc/rfc1035 4.1.1
-struct header
-{
+struct header {
     // Identifier.
     uint16_t id;
 
@@ -47,59 +46,54 @@ struct header
 };
 
 // https://www.rfc-editor.org/rfc/rfc1035 4.1.2
-struct question
-{
-    char *qname;
+struct question {
+    char* qname;
     uint16_t qtype;
     uint16_t qclass;
 };
 
 // https://www.rfc-editor.org/rfc/rfc1035 4.1.3
-struct resource_record
-{
-    char *name;
+struct resource_record {
+    char* name;
     uint16_t type;
     uint16_t class;
     uint32_t ttl;
     uint16_t rdlength;
-    char *rdata;
+    char* rdata;
 };
 
-enum protocol
-{
+enum protocol {
     tcp,
     udp,
     tls,
     https,
 };
 
-struct request
-{
-    char *addr;
+struct request {
+    char* addr;
     uint16_t port;
     enum protocol pr;
-    char *qname;
+    char* qname;
     uint16_t type;
-    char *ca;
-    char *certificate;
+    char* ca;
+    char* certificate;
 };
 
-struct response
-{
+struct response {
     struct header hdr;
-    struct question *questions;
-    struct resource_record *answers;
-    struct resource_record *authority_records;
-    struct resource_record *additional_records;
+    struct question* questions;
+    struct resource_record* answers;
+    struct resource_record* authority_records;
+    struct resource_record* additional_records;
 };
 
 uint16_t get_flags(uint8_t qr, uint8_t rd);
-uint8_t create_request(struct question *question, void *buf, uint16_t buf_size);
-int resolv(const struct request r, struct response *rsp);
-int resolv_https(const struct request r, struct response *rsp);
-int resolv_tls(const struct request r, struct response *rsp);
-int resolv_udp(const struct request r, struct response *rsp);
-struct response get_response(void *buffer, int len);
+uint8_t create_request(struct question* question, void* buf, uint16_t buf_size);
+int resolv(const struct request r, struct response* rsp);
+int resolv_https(const struct request r, struct response* rsp);
+int resolv_tls(const struct request r, struct response* rsp);
+int resolv_udp(const struct request r, struct response* rsp);
+struct response get_response(void* buffer, int len);
 void free_response(struct response rsp);
 
 #endif

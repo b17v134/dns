@@ -8,11 +8,10 @@
 
 #define BUF 1024
 
-int resolv_udp(const struct request r, struct response *rsp)
+int resolv_udp(const struct request r, struct response* rsp)
 {
-    char *buffer = malloc(sizeof(char) * 4096);
-    if (buffer == NULL)
-    {
+    char* buffer = malloc(sizeof(char) * 4096);
+    if (buffer == NULL) {
         perror("Cannot allocate memory");
         return -1;
     }
@@ -22,8 +21,7 @@ int resolv_udp(const struct request r, struct response *rsp)
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
     int result = getaddrinfo(r.addr, "53", &hints, &res);
-    if (result != 0)
-    {
+    if (result != 0) {
         return -1;
     }
     sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol); // @todo: check return value != -1.
@@ -33,10 +31,9 @@ int resolv_udp(const struct request r, struct response *rsp)
     q.qname = r.qname;
     q.qtype = r.type;
     q.qclass = 1;
-    void *buf;
+    void* buf;
     buf = malloc(1024);
-    if (buf == NULL)
-    {
+    if (buf == NULL) {
         perror("Cannot allocate memory");
         exit(1);
     }
@@ -44,7 +41,7 @@ int resolv_udp(const struct request r, struct response *rsp)
     result = sendto(sockfd, buf, s, MSG_CONFIRM, res->ai_addr, res->ai_addrlen);
     free(buf);
 
-    n = recvfrom(sockfd, (char *)buffer, BUF, MSG_WAITALL, res->ai_addr, &len);
+    n = recvfrom(sockfd, (char*)buffer, BUF, MSG_WAITALL, res->ai_addr, &len);
     buffer[n] = '\0';
     close(sockfd);
 

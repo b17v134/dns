@@ -1,25 +1,23 @@
 #include "types.h"
 #include "utils.h"
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#define DNS_CHECK_TYPE(strValue, value)        \
-    {                                          \
-        if (strcmp(dns_type, (strValue)) == 0) \
-        {                                      \
-            result = (value);                  \
-            goto finish;                       \
-        }                                      \
+#define DNS_CHECK_TYPE(strValue, value)          \
+    {                                            \
+        if (strcmp(dns_type, (strValue)) == 0) { \
+            result = (value);                    \
+            goto finish;                         \
+        }                                        \
     }
 
-uint16_t dns_type_to_int(const char *type)
+uint16_t dns_type_to_int(const char* type)
 {
     int size = strlen(type) + 1;
-    char *dns_type = malloc(sizeof(char) * size);
-    if (dns_type == NULL)
-    {
+    char* dns_type = malloc(sizeof(char) * size);
+    if (dns_type == NULL) {
         perror("Cannot allocate memory");
         exit(1);
     }
@@ -127,10 +125,9 @@ finish:
         return (stdValue);                  \
         break;
 
-char *int_to_dns_type(uint16_t type)
+char* int_to_dns_type(uint16_t type)
 {
-    switch (type)
-    {
+    switch (type) {
         DNS_CHECK_INT_TYPE(DNS_TYPE_A, DNS_STR_TYPE_A)
         DNS_CHECK_INT_TYPE(DNS_TYPE_NS, DNS_STR_TYPE_NS)
         DNS_CHECK_INT_TYPE(DNS_TYPE_MD, DNS_STR_TYPE_MD)
