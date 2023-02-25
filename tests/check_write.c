@@ -17,6 +17,19 @@ START_TEST(test_write_qname)
 }
 END_TEST
 
+START_TEST(test_write_qname_2)
+{
+    void* buf;
+    buf = malloc(sizeof(uint8_t));
+    ck_assert_ptr_ne(buf, NULL);
+    char result[1] = { 0 };
+    int len = write_qname(buf, ".");
+    ck_assert_int_eq(memcmp((void*)result, buf, 0), 0);
+    ck_assert_int_eq(len, 0);
+    free(buf);
+}
+END_TEST
+
 Suite* write_suite(void)
 {
     Suite* s;
@@ -26,6 +39,7 @@ Suite* write_suite(void)
     tc_core = tcase_create("write");
 
     tcase_add_test(tc_core, test_write_qname);
+    tcase_add_test(tc_core, test_write_qname_2);
 
     suite_add_tcase(s, tc_core);
 
