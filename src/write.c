@@ -1,6 +1,7 @@
 #include "write.h"
 #include "message.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -21,19 +22,26 @@ int write_qname(void* buf, const char* qname)
     if (qname[length - 1] == '.') {
         length--;
     }
-    uint8_t chunk_length = 0;
-    for (int pos = length - 1; pos >= 0; pos--) {
-        if (qname[pos] == '.') {
-            *(uint8_t*)(buf + pos + 1) = chunk_length;
-            chunk_length = 0;
-        } else {
-            chunk_length++;
-            *(char*)(buf + pos + 1) = qname[pos];
+    bool write_count = true;
+    int pos = 0;
+    for (int i = 0; i < length; i++) {
+        if (write_count) {
+            uint8_t count = 0;
+            for (int j = i; (j < length) && (qname[j] != '.'); j++) {
+                count++;
+            }
+            *(uint8_t*)(buf + pos) = count;
+            pos++;
+            write_count = false;
         }
+        if (qname[i] == '.') {
+            write_count = true;
+            continue;
+        }
+        *(uint8_t*)(buf + pos) = qname[i];
+        pos++;
     }
-    *(uint8_t*)(buf) = chunk_length;
-    *(uint8_t*)(buf + length + 1) = 0;
-    return length + 1;
+    return pos;
 }
 
 int write_header(void* buf, struct header h)
