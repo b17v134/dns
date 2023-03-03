@@ -13,7 +13,6 @@ jobs:
             autoconf \
             automake \
             check-dev \
-            clang-extra-tools \
             cppcheck \
             gcc \
             json-c-dev \
