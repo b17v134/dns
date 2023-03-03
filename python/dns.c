@@ -15,10 +15,11 @@ static PyObject* method_resolv(PyObject* self, PyObject* args)
     char* certificate;
     struct response* rsp;
 
-    rsp = malloc(sizeof(struct response));
     if (!PyArg_ParseTuple(args, "sHishss", &addr, &port, &pr, &qname, &type, &ca, &certificate)) {
         return NULL;
     }
+
+    rsp = malloc(sizeof(struct response));
 
     struct request r = {
         addr,

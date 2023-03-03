@@ -11,7 +11,7 @@ CFLAGS_LIBEVENT_OPENSSL = `pkg-config --cflags libevent_openssl`
 LDFLAGS_LIBEVENT_OPENSSL = `pkg-config --libs libevent_openssl`
 
 LINKER_FLAGS=`pkg-config --libs openssl` 
-AM_CFLAGS = -Wall -Werror -I$(top_srcdir)/include $(CFLAGS_JSON_C) $(CFLAGS_NGHTTP2) $(CFLAGS_LIBEVENT) $(CFLAGS_LIBEVENT_OPENSSL) 
+AM_CFLAGS = -Wall -Werror -pedantic -I$(top_srcdir)/include $(CFLAGS_JSON_C) $(CFLAGS_NGHTTP2) $(CFLAGS_LIBEVENT) $(CFLAGS_LIBEVENT_OPENSSL) 
 
 lib_LTLIBRARIES = libdns.la
 libdns_la_SOURCES =                     \
