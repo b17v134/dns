@@ -4,7 +4,7 @@
 #include <string.h>
 #include <time.h>
 
-struct header create_header()
+struct header create_header(void)
 {
     srand(time(NULL));
 

@@ -31,8 +31,8 @@ static struct option long_options[] = {
     { "version", no_argument, &version_flag, 1 },
 };
 
-void print_version();
-void print_usage();
+void print_version(void);
+void print_usage(void);
 void set_output_format(char* format);
 void set_server(char* srv);
 void set_port(char* port_arg);
@@ -139,13 +139,13 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void print_version()
+void print_version(void)
 {
     printf("resolv %s\n", version);
     exit(0);
 }
 
-void print_usage()
+void print_usage(void)
 {
     puts("Usage: resolv [options...] <value>\n\
  -A <file>                  CA certificate\n\
