@@ -6,16 +6,16 @@
 
 uint16_t get_flags(uint8_t qr, uint8_t rd)
 {
-    return ((qr & 0b1) << 16) + ((rd & 0b1) << 8);
+    return ((qr & 1) << 16) + ((rd & 1) << 8);
 }
 
-void write_uint16_t(void* buf, uint16_t value)
+void write_uint16_t(uint8_t* buf, uint16_t value)
 {
     *(uint8_t*)(buf) = (value & 0xFF00) >> 8;
     *(uint8_t*)(buf + 1) = value & 0xFF;
 }
 
-int write_qname(void* buf, const char* qname)
+int write_qname(uint8_t* buf, const char* qname)
 {
     int length = strlen(qname);
     if (qname[length - 1] == '.') {
@@ -36,7 +36,7 @@ int write_qname(void* buf, const char* qname)
     return length + 1;
 }
 
-int write_header(void* buf, struct header h)
+int write_header(uint8_t* buf, struct header h)
 {
     uint16_t flags = get_flags(h.qr, h.rd);
     write_uint16_t(buf, h.id);
@@ -49,7 +49,7 @@ int write_header(void* buf, struct header h)
     return 12;
 }
 
-int write_question(void* buf, struct question* q)
+int write_question(uint8_t* buf, struct question* q)
 {
     int length = write_qname(buf, q->qname);
     write_uint16_t(buf + length + 1, q->qtype);
