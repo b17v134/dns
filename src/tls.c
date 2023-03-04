@@ -75,7 +75,7 @@ int resolv_tls(const struct request r, struct response* rsp)
         return -1;
     }
 
-    struct question q = { r.qname, r.type, 1 };
+    struct question q = { r.qname, r.type, r.class };
     void* buf = malloc(1024);
     if (buf == NULL) {
         perror("Cannot allocate memory");
@@ -83,7 +83,7 @@ int resolv_tls(const struct request r, struct response* rsp)
     }
 
     int s = create_request(&q, buf, 1024);
-    void* send_buf;
+    uint8_t* send_buf;
     send_buf = malloc(s + 2);
     if (send_buf == NULL) {
         perror("Cannot allocate memory");

@@ -5,6 +5,7 @@ RUN dnf install -y \
     automake \
     check-devel \
     clang \
+    cppcheck \
     gcc \
     json-c-devel \
     libevent-devel \

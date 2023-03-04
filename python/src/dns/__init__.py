@@ -147,12 +147,18 @@ class Protocol(Enum):
     TLS = 2
     HTTPS = 3
 
+class Class(Enum):
+    IN = 1
+    CH = 3
+    HS = 4
+
 class Request:
     Address: str
     Port: int
     Protocol: Protocol
     Qname: str
     Type: int
+    Class: Class
     Ca: str
     Certificate: str
 
@@ -181,6 +187,7 @@ class CRequest(Structure):
         ('pr', c_int),
         ('qname', c_char_p),
         ('type', c_int16),
+        ('class', c_uint16),
         ('ca', c_char_p),
         ('certificate', c_char_p)
     ]
@@ -235,6 +242,7 @@ def Resolv(request: Request)->Response:
         request.Protocol.value,  
         request.Qname, 
         request.Type, 
+        request.Class.value,
         getattr(request, "Ca", ""), 
         getattr(request, "Certificate", ""),
     )

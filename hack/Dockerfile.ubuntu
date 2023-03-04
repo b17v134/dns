@@ -6,6 +6,7 @@ RUN apt install -y \
     automake \
     check \
     clang \
+    cppcheck \
     gcc \
     libevent-dev \
     libjson-c-dev \

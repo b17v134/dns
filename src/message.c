@@ -4,13 +4,13 @@
 #include <string.h>
 #include <time.h>
 
-struct header create_header()
+struct header create_header(void)
 {
     srand(time(NULL));
 
-    struct header hdr = {};
+    struct header hdr;
     memset(&hdr, 0, sizeof(struct header));
-    hdr.id = rand() % 0b1111111111111111;
+    hdr.id = rand() % 0xFFFF;
     hdr.qr = 1;
     hdr.rd = 1;
     hdr.qdcount = 1;
@@ -21,7 +21,7 @@ struct header create_header()
     return hdr;
 }
 
-uint8_t create_request(struct question* question, void* buf, uint16_t buf_size)
+uint8_t create_request(struct question* question, uint8_t* buf, uint16_t buf_size)
 {
     struct header r = create_header();
     int header_length = write_header(buf, r);

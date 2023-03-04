@@ -28,7 +28,7 @@ void print_header(const struct header hdr)
 void print_resource_record(const struct resource_record record)
 {
     printf(
-        "%s\t%d\t%s\t%s\t%s\n",
+        "%s\t%u\t%s\t%s\t%s\n",
         record.name,
         record.ttl,
         int_to_dns_class(record.class),

@@ -16,6 +16,7 @@ static int output_format = OUTPUT_FORMAT_PLAIN;
 static int verbose_flag;
 static int version_flag;
 static enum protocol pr = udp;
+static int class = DNS_CLASS_IN;
 
 static uint16_t type = DNS_TYPE_A;
 static char* server;
@@ -31,20 +32,19 @@ static struct option long_options[] = {
     { "version", no_argument, &version_flag, 1 },
 };
 
-void print_version();
-void print_usage();
+void print_version(void);
+void print_usage(void);
 void set_output_format(char* format);
 void set_server(char* srv);
 void set_port(char* port_arg);
+void set_class(char* arg);
 void set_protocol(char* port_arg);
 
 int main(int argc, char* argv[])
 {
-    int c;
-
     while (1) {
         int option_index = 0;
-        c = getopt_long(argc, argv, "hvVs:t:p:r:A:E:o:", long_options, &option_index);
+        int c = getopt_long(argc, argv, "c:hvVs:t:p:r:A:E:o:", long_options, &option_index);
 
         /* Detect the end of the options. */
         if (c == -1) {
@@ -64,6 +64,9 @@ int main(int argc, char* argv[])
 
         case 'A':
             ca = strdup(optarg);
+            break;
+        case 'c':
+            set_class(optarg);
             break;
         case 'E':
             certificate = strdup(optarg);
@@ -112,7 +115,7 @@ int main(int argc, char* argv[])
     if (optind < argc) {
         while (optind < argc) {
             char* qname = argv[optind++];
-            struct request r = { server, port, pr, qname, type, ca, certificate };
+            struct request r = { server, port, pr, qname, type, class, ca, certificate };
             char* buffer = malloc(sizeof(char) * 1024);
             if (buffer == NULL) {
                 perror("Cannot allocate memory");
@@ -139,13 +142,13 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void print_version()
+void print_version(void)
 {
     printf("resolv %s\n", version);
     exit(0);
 }
 
-void print_usage()
+void print_usage(void)
 {
     puts("Usage: resolv [options...] <value>\n\
  -A <file>                  CA certificate\n\
@@ -198,6 +201,11 @@ void set_port(char* port_arg)
     }
 
     port = p;
+}
+
+void set_class(char* arg)
+{
+    class = dns_class_to_int(arg);
 }
 
 void set_protocol(char* port_arg)
