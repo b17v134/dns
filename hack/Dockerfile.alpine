@@ -6,6 +6,7 @@ RUN apk add \
     automake \
     check-dev \
     clang \
+    cppcheck \
     gcc \
     json-c-dev \
     libevent-dev \

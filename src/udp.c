@@ -1,5 +1,6 @@
 #include "dns.h"
 
+#include <errno.h>
 #include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,23 +23,40 @@ int resolv_udp(const struct request r, struct response* rsp)
     hints.ai_protocol = IPPROTO_UDP;
     int result = getaddrinfo(r.addr, "53", &hints, &res);
     if (result != 0) {
+        free(buffer);
         return -1;
     }
-    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol); // @todo: check return value != -1.
+    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (sockfd == -1) {
+        perror(strerror(errno));
+        free(buffer);
+        return -1;
+    }
     int n;
     unsigned int len;
     struct question q;
     q.qname = r.qname;
     q.qtype = r.type;
-    q.qclass = 1;
+    q.qclass = r.class;
+
     void* buf;
     buf = malloc(1024);
     if (buf == NULL) {
         perror("Cannot allocate memory");
-        exit(1);
+        free(buffer);
+        close(sockfd);
+        return -1;
     }
     int s = create_request(&q, buf, 1024);
     result = sendto(sockfd, buf, s, MSG_CONFIRM, res->ai_addr, res->ai_addrlen);
+    if (result == -1) {
+        perror(strerror(errno));
+        free(buf);
+        free(buffer);
+        close(sockfd);
+        return -1;
+    }
+
     free(buf);
 
     n = recvfrom(sockfd, (char*)buffer, BUF, MSG_WAITALL, res->ai_addr, &len);

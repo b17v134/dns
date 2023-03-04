@@ -75,6 +75,7 @@ struct request {
     enum protocol pr;
     char* qname;
     uint16_t type;
+    uint16_t class;
     char* ca;
     char* certificate;
 };
@@ -88,7 +89,7 @@ struct response {
 };
 
 uint16_t get_flags(uint8_t qr, uint8_t rd);
-uint8_t create_request(struct question* question, void* buf, uint16_t buf_size);
+uint8_t create_request(struct question* question, uint8_t* buf, uint16_t buf_size);
 int resolv(const struct request r, struct response* rsp);
 int resolv_https(const struct request r, struct response* rsp);
 int resolv_tls(const struct request r, struct response* rsp);

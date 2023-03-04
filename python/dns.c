@@ -11,14 +11,16 @@ static PyObject* method_resolv(PyObject* self, PyObject* args)
     int pr;
     char* qname;
     int16_t type;
+    int16_t class;
     char* ca;
     char* certificate;
     struct response* rsp;
 
-    rsp = malloc(sizeof(struct response));
-    if (!PyArg_ParseTuple(args, "sHishss", &addr, &port, &pr, &qname, &type, &ca, &certificate)) {
+    if (!PyArg_ParseTuple(args, "sHishhss", &addr, &port, &pr, &qname, &type, &class, &ca, &certificate)) {
         return NULL;
     }
+
+    rsp = malloc(sizeof(struct response));
 
     struct request r = {
         addr,
@@ -26,6 +28,7 @@ static PyObject* method_resolv(PyObject* self, PyObject* args)
         pr,
         qname,
         type,
+        class,
         ca,
         certificate,
     };
@@ -64,6 +67,7 @@ static struct PyModuleDef dnsmodule = {
     dnsMethods,
 };
 
+// cppcheck-suppress unusedFunction
 PyMODINIT_FUNC PyInit_pydns(void)
 {
     return PyModule_Create(&dnsmodule);

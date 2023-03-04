@@ -190,12 +190,11 @@ static int on_stream_close_callback(
     void* user_data)
 {
     http2_session_data* session_data = (http2_session_data*)user_data;
-    int rv;
 
     if (session_data->stream_data->stream_id == stream_id) {
         fprintf(stderr, "Stream %d closed with error_code=%u\n", stream_id,
             error_code);
-        rv = nghttp2_session_terminate_session(session, NGHTTP2_NO_ERROR);
+        int rv = nghttp2_session_terminate_session(session, NGHTTP2_NO_ERROR);
         if (rv != 0) {
             return NGHTTP2_ERR_CALLBACK_FAILURE;
         }
@@ -500,7 +499,7 @@ static void run(char* host, int port, char* path)
 
 int resolv_https(const struct request r, struct response* rsp)
 {
-    struct question q = { r.qname, r.type, 1 };
+    struct question q = { r.qname, r.type, r.class };
 
     Buf = malloc(1024);
     if (Buf == NULL) {
