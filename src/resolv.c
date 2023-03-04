@@ -40,11 +40,9 @@ void set_protocol(char* port_arg);
 
 int main(int argc, char* argv[])
 {
-    int c;
-
     while (1) {
         int option_index = 0;
-        c = getopt_long(argc, argv, "hvVs:t:p:r:A:E:o:", long_options, &option_index);
+        int c = getopt_long(argc, argv, "hvVs:t:p:r:A:E:o:", long_options, &option_index);
 
         /* Detect the end of the options. */
         if (c == -1) {

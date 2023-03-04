@@ -78,13 +78,18 @@ int read_question(uint8_t* buffer, const int pos, struct question* q)
     uint8_t length;
 
     while ((length = *(uint8_t*)(buffer + current_pos))) {
-        memcpy(qname, buffer + current_pos + 1, length);
-        qname[length] = '\0';
+        strncat(qname, (char*)(buffer + current_pos + 1), length);
         strcat(qname, ".");
         current_pos += length + 1;
     }
-    qname = (char*)realloc(qname, sizeof(char) * (strlen(qname) + 1));
-    q->qname = qname;
+
+    char* tmp = (char*)realloc(qname, sizeof(char) * (strlen(qname) + 1));
+    if (tmp == NULL) {
+        perror("Cannot allocate memory");
+        free(qname);
+        return -1;
+    }
+    q->qname = tmp;
     q->qtype = read_uint16_t(buffer + current_pos + 1);
     q->qclass = read_uint16_t(buffer + current_pos + 3);
     current_pos += 5;
@@ -119,13 +124,20 @@ int read_qname(uint8_t* buffer, const int pos, char* qname)
 int read_resource_record(uint8_t* buffer, const int pos, struct resource_record* rr)
 {
 
-    char* qname;
-    int current_pos = pos;
-    qname = malloc(sizeof(char) * BUFSIZ);
+    char* qname = malloc(sizeof(char) * BUFSIZ);
+    if (qname == NULL) {
+        perror("Cannot allocate memory");
+        return -1;
+    }
     memset(qname, 0, BUFSIZ);
-    current_pos = read_qname(buffer, pos, qname);
-    qname = (char*)realloc(qname, sizeof(char) * (strlen(qname) + 1));
-    rr->name = qname;
+    int current_pos = read_qname(buffer, pos, qname);
+    char* new_qname = (char*)realloc(qname, sizeof(char) * (strlen(qname) + 1));
+    if (new_qname == NULL) {
+        perror("Cannot allocate memory");
+        free(qname);
+        return -1;
+    }
+    rr->name = new_qname;
     rr->type = read_uint16_t(buffer + current_pos + 1);
     rr->class = read_uint16_t(buffer + current_pos + 3);
     rr->ttl = read_uint32_t(buffer + current_pos + 5);
@@ -172,7 +184,7 @@ void read_soa(uint8_t* buf, const int pos, char* rdata)
         uint32_t item = read_uint32_t(buf + cur_pos + 1);
         char* str_item;
         str_item = malloc(sizeof(char) * BUFSIZ);
-        sprintf(str_item, "%d", item);
+        sprintf(str_item, "%u", item);
         strcat(rdata, str_item);
         if (i != 4) {
             strcat(rdata, " ");
