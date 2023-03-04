@@ -9,20 +9,17 @@ DNS over UDP example:
 
 int main(void)
 {
-	struct request r = {"10.0.2.3", 53, udp, "github.com", DNS_TYPE_A};
-	struct response resp;
-	int result = resolv(r, &resp);
-	if (result != 0)
-	{
-		perror("error");
-	}
-	else
-	{
-		print_response(resp);
-		free_response(resp);
-	}
+    struct request r = { "10.0.2.3", 53, udp, "github.com", DNS_TYPE_A, DNS_CLASS_IN };
+    struct response resp;
+    int result = resolv(r, &resp);
+    if (result != 0) {
+        perror("error");
+    } else {
+        print_response(resp);
+        free_response(resp);
+    }
 
-	return 0;
+    return 0;
 }
 
 DNS over TLS example:
@@ -32,15 +29,12 @@ DNS over TLS example:
 
 int main(void)
 {
-    struct request r = {"dns.server", 853, tls, "github.com", DNS_TYPE_A, "rootCA.crt", "certificate.pem"};
+    struct request r = { "dns.server", 853, tls, "github.com", DNS_TYPE_A, DNS_CLASS_IN, "rootCA.crt", "certificate.pem" };
     struct response resp;
     int result = resolv(r, &resp);
-    if (result != 0)
-    {
+    if (result != 0) {
         perror("error");
-    }
-    else
-    {
+    } else {
         print_response(resp);
         free_response(resp);
     }
@@ -55,22 +49,18 @@ DNS over HTTPS example:
 
 int main(void)
 {
-    struct request r = {"dns.server", 443, https, "github.com", DNS_TYPE_A, "rootCA.crt", "certificate.pem"};
+    struct request r = { "dns.server", 443, https, "github.com", DNS_TYPE_A, DNS_CLASS_IN, "rootCA.crt", "certificate.pem" };
     struct response resp;
     int result = resolv(r, &resp);
-    if (result != 0)
-    {
+    if (result != 0) {
         perror("error");
-    }
-    else
-    {
+    } else {
         print_response(resp);
         free_response(resp);
     }
 
     return 0;
 }
-
 The sample code to use the python package:
 
 DNS over UDP example:
