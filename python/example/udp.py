@@ -6,7 +6,7 @@ request.Port = 53
 request.Protocol = dns.Protocol.UDP
 request.Qname = "github.com"
 request.Type = dns.DNS_TYPE_A
-request.Class = dns.Class.CH
+request.Class = dns.Class.IN
 
 response = dns.Resolv(request)
 print(response) 
