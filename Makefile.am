@@ -7,7 +7,7 @@ autoformat:
 	find . -iname *.h -o -iname *.c | xargs clang-format --style=WebKit -i
 
 cppcheck:
-	cppcheck --enable=all --suppress=missingIncludeSystem -I include/ --error-exitcode=1 .
+	cppcheck --enable=all --suppress=missingIncludeSystem -I include/ --error-exitcode=1 --inline-suppr .
 
 docker:
 	podman build -f hack/Dockerfile.alpine -t dns-dev-alpine

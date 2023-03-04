@@ -65,6 +65,7 @@ static struct PyModuleDef dnsmodule = {
     dnsMethods,
 };
 
+// cppcheck-suppress unusedFunction
 PyMODINIT_FUNC PyInit_pydns(void)
 {
     return PyModule_Create(&dnsmodule);

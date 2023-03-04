@@ -9,8 +9,8 @@ Suite* write_suite(void);
 START_TEST(test_dns_type_to_int)
 {
     struct test_data {
-        char* type;
-        uint16_t result;
+        char* type; // cppcheck-suppress unusedStructMember
+        uint16_t result; // cppcheck-suppress unusedStructMember
     } data[] = {
         { "example", DNS_TYPE_ERROR },
         { "A", DNS_TYPE_A },
