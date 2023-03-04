@@ -499,7 +499,7 @@ static void run(char* host, int port, char* path)
 
 int resolv_https(const struct request r, struct response* rsp)
 {
-    struct question q = { r.qname, r.type, 1 };
+    struct question q = { r.qname, r.type, r.class };
 
     Buf = malloc(1024);
     if (Buf == NULL) {

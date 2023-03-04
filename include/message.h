@@ -75,6 +75,7 @@ struct request {
     enum protocol pr;
     char* qname;
     uint16_t type;
+    uint16_t class;
     char* ca;
     char* certificate;
 };

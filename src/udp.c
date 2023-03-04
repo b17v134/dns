@@ -37,7 +37,8 @@ int resolv_udp(const struct request r, struct response* rsp)
     struct question q;
     q.qname = r.qname;
     q.qtype = r.type;
-    q.qclass = 1;
+    q.qclass = r.class;
+
     void* buf;
     buf = malloc(1024);
     if (buf == NULL) {

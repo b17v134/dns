@@ -11,9 +11,7 @@ START_TEST(test_dns_type_to_int)
     struct test_data {
         char* type;
         uint16_t result;
-    };
-
-    struct test_data data[] = {
+    } data[] = {
         { "example", DNS_TYPE_ERROR },
         { "A", DNS_TYPE_A },
         { "a", DNS_TYPE_A },
