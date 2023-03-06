@@ -60,7 +60,6 @@ int resolv_udp(const struct request r, struct response* rsp)
     free(buf);
 
     n = recvfrom(sockfd, (char*)buffer, BUF, MSG_WAITALL, res->ai_addr, &len);
-    buffer[n] = '\0';
     close(sockfd);
 
     *rsp = get_response(buffer, n);
