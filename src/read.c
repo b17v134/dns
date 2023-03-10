@@ -113,7 +113,9 @@ int read_qname(uint8_t* buffer, const int pos, char* qname)
                 current_pos += length + 1;
             }
         }
-        strncat(qname, (char*)(buffer + tmp_pos + 1), length);
+        int old_len = strlen(qname);
+        memcpy(qname + old_len, (char*)(buffer + tmp_pos + 1), length);
+        qname[old_len + length] = '\0';
         strcat(qname, ".");
         tmp_pos += length + 1;
     }
@@ -176,7 +178,7 @@ void read_soa(uint8_t* buf, const int pos, char* rdata)
     strcat(rdata, " ");
     char* rname;
     rname = malloc(sizeof(char) * BUFSIZ);
-    cur_pos = read_qname(buf, cur_pos + 1, rname);
+    cur_pos = read_qname(buf, cur_pos, rname);
     strcat(rdata, rname);
     strcat(rdata, " ");
     free(rname);
