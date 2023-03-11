@@ -8,7 +8,7 @@
 
 uint8_t read_uint8_t(uint8_t* buf)
 {
-    return (*(uint8_t*)buf);
+    return *buf;
 }
 
 uint16_t read_uint16_t(uint8_t* buf)
