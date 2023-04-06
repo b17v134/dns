@@ -6,22 +6,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-uint8_t read_uint8_t(uint8_t* buf)
+uint8_t read_uint8_t(const uint8_t* buf)
 {
-    return (*(uint8_t*)buf);
+    return *buf;
 }
 
-uint16_t read_uint16_t(uint8_t* buf)
+uint16_t read_uint16_t(const uint8_t* buf)
 {
     return ntohs(*(uint16_t*)buf);
 }
 
-uint32_t read_uint32_t(uint8_t* buf)
+uint32_t read_uint32_t(const uint8_t* buf)
 {
     return ntohl(*(uint32_t*)buf);
 }
 
-void read_ipv4(uint8_t* buf, char* ip)
+void read_ipv4(const uint8_t* buf, char* ip)
 {
     sprintf(
         ip,
@@ -32,7 +32,7 @@ void read_ipv4(uint8_t* buf, char* ip)
         read_uint8_t(buf + 3));
 }
 
-void read_ipv6(uint8_t* buf, char* ip)
+void read_ipv6(const uint8_t* buf, char* ip)
 {
     char num[3];
     ip[0] = '\0';
@@ -46,7 +46,7 @@ void read_ipv6(uint8_t* buf, char* ip)
     }
 }
 
-void read_header(uint8_t* buffer, struct header* hdr)
+void read_header(const uint8_t* buffer, struct header* hdr)
 {
     hdr->id = read_uint16_t(buffer);
 
@@ -66,7 +66,7 @@ void read_header(uint8_t* buffer, struct header* hdr)
     hdr->arcount = read_uint16_t(buffer + 10);
 }
 
-int read_question(uint8_t* buffer, const int pos, struct question* q)
+int read_question(const uint8_t* buffer, const int pos, struct question* q)
 {
     char* qname = NULL;
     qname = malloc(sizeof(char) * BUFSIZ);
@@ -97,31 +97,47 @@ int read_question(uint8_t* buffer, const int pos, struct question* q)
     return current_pos;
 }
 
-int read_qname(uint8_t* buffer, const int pos, char* qname)
+int read_qname(const uint8_t* buffer, const int pos, char* qname)
 {
-    int current_pos = pos;
+    int max_pos = pos;
     uint8_t length;
-    uint16_t tmp_pos = current_pos;
-    int is_pointer = 0; // no pointer
+    uint16_t tmp_pos = pos;
+    if (buffer[pos] == 0) {
+        strcpy(qname, ".");
+        return pos;
+    }
     while ((length = *(uint8_t*)(buffer + tmp_pos))) {
         if (((length & (0x3 << 6)) >> 6) == 0x3) {
+            if (max_pos < tmp_pos) {
+                max_pos = tmp_pos + 1;
+            }
             tmp_pos = read_uint16_t(buffer + tmp_pos) - (0x3 << 14);
             length = *(uint8_t*)(buffer + tmp_pos);
-            is_pointer = 1;
+            int old_len = strlen(qname);
+            memcpy(qname + old_len, (char*)(buffer + tmp_pos + 1), length);
+            qname[old_len + length] = '\0';
+            strcat(qname, ".");
+            tmp_pos += length + 1;
         } else {
-            if (is_pointer == 0) {
-                current_pos += length + 1;
+            if (max_pos < tmp_pos) {
+                max_pos = tmp_pos;
             }
+
+            int old_len = strlen(qname);
+            memcpy(qname + old_len, (char*)(buffer + tmp_pos + 1), length);
+            qname[old_len + length] = '\0';
+            strcat(qname, ".");
+            tmp_pos += length + 1;
         }
-        strncat(qname, (char*)(buffer + tmp_pos + 1), length);
-        strcat(qname, ".");
-        tmp_pos += length + 1;
     }
-    current_pos += 1;
-    return current_pos;
+
+    if (max_pos < tmp_pos) {
+        max_pos = tmp_pos;
+    }
+    return max_pos + 1;
 }
 
-int read_resource_record(uint8_t* buffer, const int pos, struct resource_record* rr)
+int read_resource_record(const uint8_t* buffer, const int pos, struct resource_record* rr)
 {
 
     char* qname = malloc(sizeof(char) * BUFSIZ);
@@ -170,13 +186,13 @@ int read_resource_record(uint8_t* buffer, const int pos, struct resource_record*
     return current_pos;
 }
 
-void read_soa(uint8_t* buf, const int pos, char* rdata)
+void read_soa(const uint8_t* buf, const int pos, char* rdata)
 {
     int cur_pos = read_qname(buf, pos, rdata);
     strcat(rdata, " ");
     char* rname;
     rname = malloc(sizeof(char) * BUFSIZ);
-    cur_pos = read_qname(buf, cur_pos + 1, rname);
+    cur_pos = read_qname(buf, cur_pos, rname);
     strcat(rdata, rname);
     strcat(rdata, " ");
     free(rname);
