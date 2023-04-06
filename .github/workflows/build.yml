@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ['38']
+        version: ['38', '39']
         cc: ['clang', 'gcc']
     container:
       image: fedora:${{ matrix.version }}

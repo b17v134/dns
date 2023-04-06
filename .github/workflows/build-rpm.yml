@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ['38']
+        version: ['38', '39']
     container:
       image: fedora:${{ matrix.version }}
     steps:
