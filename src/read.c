@@ -102,6 +102,10 @@ int read_qname(const uint8_t* buffer, const int pos, char* qname)
     int max_pos = pos;
     uint8_t length;
     uint16_t tmp_pos = pos;
+    if (buffer[pos] == 0) {
+        strcpy(qname, ".");
+        return pos;
+    }
     while ((length = *(uint8_t*)(buffer + tmp_pos))) {
         if (((length & (0x3 << 6)) >> 6) == 0x3) {
             if (max_pos < tmp_pos) {
