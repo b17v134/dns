@@ -197,7 +197,7 @@ void read_soa(const uint8_t* buf, const int pos, char* rdata)
     strcat(rdata, " ");
     free(rname);
     for (int i = 0; i < 5; i++) {
-        uint32_t item = read_uint32_t(buf + cur_pos + 1);
+        uint32_t item = read_uint32_t(buf + cur_pos);
         char* str_item;
         str_item = malloc(sizeof(char) * BUFSIZ);
         sprintf(str_item, "%u", item);
