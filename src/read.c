@@ -168,6 +168,12 @@ int read_resource_record(const uint8_t* buffer, const int pos, struct resource_r
         rr->rdata = malloc(sizeof(char) * 50); // @todo: fix size
         read_ipv6(buffer + current_pos + 11, rr->rdata);
         break;
+    case DNS_TYPE_MX:
+        rr->rdata = malloc(sizeof(char) * BUFSIZ);
+        memset(rr->rdata, 0, BUFSIZ);
+        read_mx(buffer, current_pos + 11, rr->rdata);
+        rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
+        break;
     case DNS_TYPE_SOA:
         rr->rdata = malloc(sizeof(char) * BUFSIZ);
         memset(rr->rdata, 0, BUFSIZ);
@@ -184,6 +190,18 @@ int read_resource_record(const uint8_t* buffer, const int pos, struct resource_r
     current_pos += 11 + tmp;
 
     return current_pos;
+}
+
+void read_mx(const uint8_t* buf, const int pos, char* rdata)
+{
+    uint16_t preference = read_uint16_t(buf + pos);
+    sprintf(rdata, "%u", preference);
+    strcat(rdata, " ");
+    char* rname;
+    rname = malloc(sizeof(char) * BUFSIZ);
+    read_qname(buf, pos + 2, rname);
+    strcat(rdata, rname);
+    free(rname);
 }
 
 void read_soa(const uint8_t* buf, const int pos, char* rdata)
