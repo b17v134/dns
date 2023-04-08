@@ -36,9 +36,10 @@ START_TEST(test_int_to_dns_type)
         { DNS_TYPE_A, "A" },
         { DNS_TYPE_NS, "NS" },
         { DNS_TYPE_AAAA, "AAAA" },
+        { DNS_TYPE_ANY, "ANY" },
     };
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 6; i++) {
         ck_assert_int_eq(strcmp(int_to_dns_type(data[i].type), data[i].result), 0);
     }
 }

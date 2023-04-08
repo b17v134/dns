@@ -90,6 +90,8 @@
 #define DNS_TYPE_MAILB 253
 #define DNS_TYPE_MAILA 254
 
+#define DNS_TYPE_ANY 255
+
 #define DNS_TYPE_URI 256
 #define DNS_TYPE_CAA 257
 #define DNS_TYPE_AVC 258
@@ -180,6 +182,9 @@
 #define DNS_STR_TYPE_AXFR "AXFR"
 #define DNS_STR_TYPE_MAILB "MAILB"
 #define DNS_STR_TYPE_MAILA "MAILA"
+
+#define DNS_STR_TYPE_ANY "ANY"
+
 #define DNS_STR_TYPE_URI "URI"
 #define DNS_STR_TYPE_CAA "CAA"
 #define DNS_STR_TYPE_AVC "AVC"
