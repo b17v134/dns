@@ -168,6 +168,12 @@ int read_resource_record(const uint8_t* buffer, const int pos, struct resource_r
         rr->rdata = malloc(sizeof(char) * 50); // @todo: fix size
         read_ipv6(buffer + current_pos + 11, rr->rdata);
         break;
+    case DNS_TYPE_HINFO:
+        rr->rdata = malloc(sizeof(char) * BUFSIZ);
+        memset(rr->rdata, 0, BUFSIZ);
+        read_hinfo(buffer, current_pos + 11, rr->rdata);
+        rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
+        break;
     case DNS_TYPE_MX:
         rr->rdata = malloc(sizeof(char) * BUFSIZ);
         memset(rr->rdata, 0, BUFSIZ);
@@ -190,6 +196,26 @@ int read_resource_record(const uint8_t* buffer, const int pos, struct resource_r
     current_pos += 11 + tmp;
 
     return current_pos;
+}
+
+int read_string(const uint8_t* buf, const int pos, char* result)
+{
+    uint8_t size = read_uint8_t(buf + pos);
+    strncpy(result, (char*)(buf + pos + 1), size);
+    return pos + size + 1;
+}
+
+void read_hinfo(const uint8_t* buf, const int pos, char* rdata)
+{
+    char* cpu;
+    cpu = malloc(sizeof(char) * BUFSIZ);
+    bzero(cpu, BUFSIZ);
+    int cur_pos = read_string(buf, pos, cpu);
+    char* os;
+    os = malloc(sizeof(char) * BUFSIZ);
+    bzero(os, BUFSIZ);
+    read_string(buf, cur_pos, os);
+    sprintf(rdata, "\"%s\" \"%s\"", cpu, os);
 }
 
 void read_mx(const uint8_t* buf, const int pos, char* rdata)
