@@ -1,4 +1,6 @@
-SUBDIRS = src tests python
+include integration-tests/integration-tests.make
+
+SUBDIRS = integration-tests python src tests
 ACLOCAL_AMFLAGS=-I m4
 
 .PHONY: autoformat cppcheck docker format rpm
