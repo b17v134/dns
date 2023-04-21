@@ -28,6 +28,5 @@ integration-tests-build-dns:
 .PHONY: integration-tests
 integration-tests: 
 	$(MAKE) integration-tests-bind-start
-	ruby integration-tests/test_a.rb -v
-	ruby integration-tests/test_help.rb -v
+	ruby integration-tests/tests.rb -v
 	$(MAKE) integration-tests-bind-stop
