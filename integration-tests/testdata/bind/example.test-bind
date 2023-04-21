@@ -1,0 +1,14 @@
+$ORIGIN example.test-bind.
+$TTL 300
+
+@	IN	SOA	ns.example.test-bind.	mail.example.test-bind.	( 20230409 604800 86400 86400 86400 )
+
+@	IN	NS	ns
+@	IN	HINFO	"i686" "unix"
+@	IN	A	10.23.0.7
+ns	IN	A	10.23.0.7
+
+test	IN	DNAME	foo
+
+a.foo	IN	A	10.23.0.8
+b.foo	IN	A	10.23.0.9
