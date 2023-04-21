@@ -1,1 +1,1 @@
-EXTRA_DIST = docker testdata *.py
+EXTRA_DIST = docker testdata *.rb
