@@ -2,7 +2,7 @@ require 'open3'
 require "test/unit"
 
 class TestHelp < Test::Unit::TestCase
-    def test_Help
+    def test_help
         usage_string =  <<-TEXT
 Usage: resolv [options...] <value>
  -A <file>                  CA certificate
