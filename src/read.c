@@ -218,16 +218,23 @@ void read_hinfo(const uint8_t* buf, const int pos, char* rdata)
     sprintf(rdata, "\"%s\" \"%s\"", cpu, os);
 }
 
-void read_mx(const uint8_t* buf, const int pos, char* rdata)
+dns_error read_mx(const uint8_t* buf, const int pos, char* rdata)
 {
     uint16_t preference = read_uint16_t(buf + pos);
     sprintf(rdata, "%u", preference);
     strcat(rdata, " ");
-    char* rname;
-    rname = malloc(sizeof(char) * BUFSIZ);
+
+    char* rname = (char*)malloc(sizeof(char) * BUFSIZ);
+    if (rname == NULL) {
+        return DNS_ERROR_OUT_OF_MEMORY;
+    }
+    bzero(rname, BUFSIZ);
+
     read_qname(buf, pos + 2, rname);
     strcat(rdata, rname);
     free(rname);
+
+    return DNS_ERROR_OK;
 }
 
 void read_soa(const uint8_t* buf, const int pos, char* rdata)
