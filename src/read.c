@@ -159,40 +159,29 @@ int read_resource_record(const uint8_t* buffer, const int pos, struct resource_r
     rr->ttl = read_uint32_t(buffer + current_pos + 5);
     rr->rdlength = read_uint16_t(buffer + current_pos + 9);
     int tmp = rr->rdlength;
+    rr->rdata = malloc(sizeof(char) * BUFSIZ);
+    bzero(rr->rdata, BUFSIZ);
     switch (rr->type) {
     case DNS_TYPE_A:
-        rr->rdata = malloc(sizeof(char) * 16);
         read_ipv4(buffer + current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_AAAA:
-        rr->rdata = malloc(sizeof(char) * 50); // @todo: fix size
         read_ipv6(buffer + current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_HINFO:
-        rr->rdata = malloc(sizeof(char) * BUFSIZ);
-        memset(rr->rdata, 0, BUFSIZ);
         read_hinfo(buffer, current_pos + 11, rr->rdata);
-        rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
         break;
     case DNS_TYPE_MX:
-        rr->rdata = malloc(sizeof(char) * BUFSIZ);
-        memset(rr->rdata, 0, BUFSIZ);
         read_mx(buffer, current_pos + 11, rr->rdata);
-        rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
         break;
     case DNS_TYPE_SOA:
-        rr->rdata = malloc(sizeof(char) * BUFSIZ);
-        memset(rr->rdata, 0, BUFSIZ);
         read_soa(buffer, current_pos + 11, rr->rdata);
-        rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
         break;
     default:
-        rr->rdata = malloc(sizeof(char) * BUFSIZ);
-        memset(rr->rdata, 0, BUFSIZ);
         read_qname(buffer, current_pos + 11, rr->rdata);
-        rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
         break;
     }
+    rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
     current_pos += 11 + tmp;
 
     return current_pos;
