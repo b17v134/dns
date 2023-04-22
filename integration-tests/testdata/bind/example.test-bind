@@ -6,6 +6,12 @@ $TTL 300
 @	IN	NS	ns
 @	IN	HINFO	"i686" "unix"
 @	IN	A	10.23.0.7
+
+@   IN  AAAA    fde3:b2a:7ba2:f133:e679:29a8:3e53:f438
+@   IN  AAAA    fde3:b2a:7ba2:f133:e679:29a8:3e53:f439
+@   IN  AAAA    fde3:b2a:7ba2:f133:e679:29a8:3e53:f43a
+@   IN  AAAA    fde3:b2a:7ba2:f133:e679:29a8:3e53:f43b
+
 ns	IN	A	10.23.0.7
 
 test	IN	DNAME	foo
