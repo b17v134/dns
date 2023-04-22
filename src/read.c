@@ -137,7 +137,7 @@ int read_qname(const uint8_t* buffer, const int pos, char* qname)
     return max_pos + 1;
 }
 
-int read_resource_record(const uint8_t* buffer, const int pos, struct resource_record* rr)
+dns_error read_resource_record(const uint8_t* buffer, const int pos, struct resource_record* rr, int* current_pos)
 {
 
     char* qname = malloc(sizeof(char) * BUFSIZ);
@@ -146,7 +146,7 @@ int read_resource_record(const uint8_t* buffer, const int pos, struct resource_r
         return -1;
     }
     memset(qname, 0, BUFSIZ);
-    int current_pos = read_qname(buffer, pos, qname);
+    int tmp_current_pos = read_qname(buffer, pos, qname);
     char* new_qname = (char*)realloc(qname, sizeof(char) * (strlen(qname) + 1));
     if (new_qname == NULL) {
         perror("Cannot allocate memory");
@@ -154,37 +154,39 @@ int read_resource_record(const uint8_t* buffer, const int pos, struct resource_r
         return -1;
     }
     rr->name = new_qname;
-    rr->type = read_uint16_t(buffer + current_pos + 1);
-    rr->class = read_uint16_t(buffer + current_pos + 3);
-    rr->ttl = read_uint32_t(buffer + current_pos + 5);
-    rr->rdlength = read_uint16_t(buffer + current_pos + 9);
+    rr->type = read_uint16_t(buffer + tmp_current_pos + 1);
+    rr->class = read_uint16_t(buffer + tmp_current_pos + 3);
+    rr->ttl = read_uint32_t(buffer + tmp_current_pos + 5);
+    rr->rdlength = read_uint16_t(buffer + tmp_current_pos + 9);
     int tmp = rr->rdlength;
     rr->rdata = malloc(sizeof(char) * BUFSIZ);
     bzero(rr->rdata, BUFSIZ);
     switch (rr->type) {
     case DNS_TYPE_A:
-        read_ipv4(buffer + current_pos + 11, rr->rdata);
+        read_ipv4(buffer + tmp_current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_AAAA:
-        read_ipv6(buffer + current_pos + 11, rr->rdata);
+        read_ipv6(buffer + tmp_current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_HINFO:
-        read_hinfo(buffer, current_pos + 11, rr->rdata);
+        read_hinfo(buffer, tmp_current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_MX:
-        read_mx(buffer, current_pos + 11, rr->rdata);
+        read_mx(buffer, tmp_current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_SOA:
-        read_soa(buffer, current_pos + 11, rr->rdata);
+        read_soa(buffer, tmp_current_pos + 11, rr->rdata);
         break;
     default:
-        read_qname(buffer, current_pos + 11, rr->rdata);
+        read_qname(buffer, tmp_current_pos + 11, rr->rdata);
         break;
     }
     rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
-    current_pos += 11 + tmp;
+    tmp_current_pos += 11 + tmp;
 
-    return current_pos;
+    *current_pos = tmp_current_pos;
+
+    return DNS_ERROR_OK;
 }
 
 int read_string(const uint8_t* buf, const int pos, char* result)
