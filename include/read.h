@@ -15,7 +15,7 @@ void read_header(const uint8_t* buffer, struct header* hdr);
 int read_question(const uint8_t* buffer, const int pos, struct question* q);
 int read_qname(const uint8_t* buffer, const int pos, char* qname);
 dns_error read_resource_record(const uint8_t* buffer, const int pos, struct resource_record* rr, int* current_pos);
-void read_hinfo(const uint8_t* buf, const int pos, char* rdata);
+dns_error read_hinfo(const uint8_t* buf, const int pos, char* rdata);
 dns_error read_mx(const uint8_t* buf, const int pos, char* rdata);
 dns_error read_soa(const uint8_t* buf, const int pos, char* rdata);
 

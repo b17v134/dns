@@ -196,17 +196,28 @@ int read_string(const uint8_t* buf, const int pos, char* result)
     return pos + size + 1;
 }
 
-void read_hinfo(const uint8_t* buf, const int pos, char* rdata)
+dns_error read_hinfo(const uint8_t* buf, const int pos, char* rdata)
 {
     char* cpu;
     cpu = malloc(sizeof(char) * BUFSIZ);
+    if (cpu == NULL) {
+        return DNS_ERROR_OUT_OF_MEMORY;
+    }
     bzero(cpu, BUFSIZ);
     int cur_pos = read_string(buf, pos, cpu);
     char* os;
     os = malloc(sizeof(char) * BUFSIZ);
+    if (os == NULL) {
+        free(cpu);
+        return DNS_ERROR_OUT_OF_MEMORY;
+    }
     bzero(os, BUFSIZ);
     read_string(buf, cur_pos, os);
     sprintf(rdata, "\"%s\" \"%s\"", cpu, os);
+    free(os);
+    free(cpu);
+
+    return DNS_ERROR_OK;
 }
 
 dns_error read_mx(const uint8_t* buf, const int pos, char* rdata)
