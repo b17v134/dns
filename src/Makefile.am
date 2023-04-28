@@ -31,6 +31,7 @@ otherincludedir = $(includedir)/dns
 otherinclude_HEADERS =                    \
     $(top_builddir)/include/classes.h     \
     $(top_builddir)/include/dns.h         \
+    $(top_builddir)/include/errors.h      \
     $(top_builddir)/include/message.h     \
     $(top_builddir)/include/print.h       \
     $(top_builddir)/include/read.h        \
