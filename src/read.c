@@ -142,16 +142,14 @@ dns_error read_resource_record(const uint8_t* buffer, const int pos, struct reso
 
     char* qname = malloc(sizeof(char) * BUFSIZ);
     if (qname == NULL) {
-        perror("Cannot allocate memory");
-        return -1;
+        return DNS_ERROR_OUT_OF_MEMORY;
     }
-    memset(qname, 0, BUFSIZ);
+    bzero(qname, BUFSIZ);
     int tmp_current_pos = read_qname(buffer, pos, qname);
     char* new_qname = (char*)realloc(qname, sizeof(char) * (strlen(qname) + 1));
     if (new_qname == NULL) {
-        perror("Cannot allocate memory");
         free(qname);
-        return -1;
+        return DNS_ERROR_OUT_OF_MEMORY;
     }
     rr->name = new_qname;
     rr->type = read_uint16_t(buffer + tmp_current_pos + 1);
@@ -159,8 +157,14 @@ dns_error read_resource_record(const uint8_t* buffer, const int pos, struct reso
     rr->ttl = read_uint32_t(buffer + tmp_current_pos + 5);
     rr->rdlength = read_uint16_t(buffer + tmp_current_pos + 9);
     int tmp = rr->rdlength;
+
     rr->rdata = malloc(sizeof(char) * BUFSIZ);
+    if (rr->rdata == NULL) {
+        return DNS_ERROR_OUT_OF_MEMORY;
+    }
+
     bzero(rr->rdata, BUFSIZ);
+    dns_error error = DNS_ERROR_OK;
     switch (rr->type) {
     case DNS_TYPE_A:
         read_ipv4(buffer + tmp_current_pos + 11, rr->rdata);
@@ -169,19 +173,26 @@ dns_error read_resource_record(const uint8_t* buffer, const int pos, struct reso
         read_ipv6(buffer + tmp_current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_HINFO:
-        read_hinfo(buffer, tmp_current_pos + 11, rr->rdata);
+        error = read_hinfo(buffer, tmp_current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_MX:
-        read_mx(buffer, tmp_current_pos + 11, rr->rdata);
+        error = read_mx(buffer, tmp_current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_SOA:
-        read_soa(buffer, tmp_current_pos + 11, rr->rdata);
+        error = read_soa(buffer, tmp_current_pos + 11, rr->rdata);
         break;
     default:
-        read_qname(buffer, tmp_current_pos + 11, rr->rdata);
+        error = read_qname(buffer, tmp_current_pos + 11, rr->rdata);
         break;
     }
-    rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
+    if (error != DNS_ERROR_OK) {
+        return error;
+    }
+    char* new_rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
+    if (new_rdata == NULL) {
+        return DNS_ERROR_OUT_OF_MEMORY;
+    }
+    rr->rdata = new_rdata;
     tmp_current_pos += 11 + tmp;
 
     *current_pos = tmp_current_pos;
