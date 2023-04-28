@@ -137,65 +137,67 @@ int read_qname(const uint8_t* buffer, const int pos, char* qname)
     return max_pos + 1;
 }
 
-int read_resource_record(const uint8_t* buffer, const int pos, struct resource_record* rr)
+dns_error read_resource_record(const uint8_t* buffer, const int pos, struct resource_record* rr, int* current_pos)
 {
 
     char* qname = malloc(sizeof(char) * BUFSIZ);
     if (qname == NULL) {
-        perror("Cannot allocate memory");
-        return -1;
+        return DNS_ERROR_OUT_OF_MEMORY;
     }
-    memset(qname, 0, BUFSIZ);
-    int current_pos = read_qname(buffer, pos, qname);
+    bzero(qname, BUFSIZ);
+    int tmp_current_pos = read_qname(buffer, pos, qname);
     char* new_qname = (char*)realloc(qname, sizeof(char) * (strlen(qname) + 1));
     if (new_qname == NULL) {
-        perror("Cannot allocate memory");
         free(qname);
-        return -1;
+        return DNS_ERROR_OUT_OF_MEMORY;
     }
     rr->name = new_qname;
-    rr->type = read_uint16_t(buffer + current_pos + 1);
-    rr->class = read_uint16_t(buffer + current_pos + 3);
-    rr->ttl = read_uint32_t(buffer + current_pos + 5);
-    rr->rdlength = read_uint16_t(buffer + current_pos + 9);
+    rr->type = read_uint16_t(buffer + tmp_current_pos + 1);
+    rr->class = read_uint16_t(buffer + tmp_current_pos + 3);
+    rr->ttl = read_uint32_t(buffer + tmp_current_pos + 5);
+    rr->rdlength = read_uint16_t(buffer + tmp_current_pos + 9);
     int tmp = rr->rdlength;
+
+    rr->rdata = malloc(sizeof(char) * BUFSIZ);
+    if (rr->rdata == NULL) {
+        return DNS_ERROR_OUT_OF_MEMORY;
+    }
+
+    bzero(rr->rdata, BUFSIZ);
+    dns_error error = DNS_ERROR_OK;
     switch (rr->type) {
     case DNS_TYPE_A:
-        rr->rdata = malloc(sizeof(char) * 16);
-        read_ipv4(buffer + current_pos + 11, rr->rdata);
+        read_ipv4(buffer + tmp_current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_AAAA:
-        rr->rdata = malloc(sizeof(char) * 50); // @todo: fix size
-        read_ipv6(buffer + current_pos + 11, rr->rdata);
+        read_ipv6(buffer + tmp_current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_HINFO:
-        rr->rdata = malloc(sizeof(char) * BUFSIZ);
-        memset(rr->rdata, 0, BUFSIZ);
-        read_hinfo(buffer, current_pos + 11, rr->rdata);
-        rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
+        error = read_hinfo(buffer, tmp_current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_MX:
-        rr->rdata = malloc(sizeof(char) * BUFSIZ);
-        memset(rr->rdata, 0, BUFSIZ);
-        read_mx(buffer, current_pos + 11, rr->rdata);
-        rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
+        error = read_mx(buffer, tmp_current_pos + 11, rr->rdata);
         break;
     case DNS_TYPE_SOA:
-        rr->rdata = malloc(sizeof(char) * BUFSIZ);
-        memset(rr->rdata, 0, BUFSIZ);
-        read_soa(buffer, current_pos + 11, rr->rdata);
-        rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
+        error = read_soa(buffer, tmp_current_pos + 11, rr->rdata);
         break;
     default:
-        rr->rdata = malloc(sizeof(char) * BUFSIZ);
-        memset(rr->rdata, 0, BUFSIZ);
-        read_qname(buffer, current_pos + 11, rr->rdata);
-        rr->rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
+        error = read_qname(buffer, tmp_current_pos + 11, rr->rdata);
         break;
     }
-    current_pos += 11 + tmp;
+    if (error != DNS_ERROR_OK) {
+        return error;
+    }
+    char* new_rdata = (char*)realloc(rr->rdata, sizeof(char) * (strlen(rr->rdata) + 1));
+    if (new_rdata == NULL) {
+        return DNS_ERROR_OUT_OF_MEMORY;
+    }
+    rr->rdata = new_rdata;
+    tmp_current_pos += 11 + tmp;
 
-    return current_pos;
+    *current_pos = tmp_current_pos;
+
+    return DNS_ERROR_OK;
 }
 
 int read_string(const uint8_t* buf, const int pos, char* result)
@@ -205,37 +207,60 @@ int read_string(const uint8_t* buf, const int pos, char* result)
     return pos + size + 1;
 }
 
-void read_hinfo(const uint8_t* buf, const int pos, char* rdata)
+dns_error read_hinfo(const uint8_t* buf, const int pos, char* rdata)
 {
     char* cpu;
     cpu = malloc(sizeof(char) * BUFSIZ);
+    if (cpu == NULL) {
+        return DNS_ERROR_OUT_OF_MEMORY;
+    }
     bzero(cpu, BUFSIZ);
     int cur_pos = read_string(buf, pos, cpu);
     char* os;
     os = malloc(sizeof(char) * BUFSIZ);
+    if (os == NULL) {
+        free(cpu);
+        return DNS_ERROR_OUT_OF_MEMORY;
+    }
     bzero(os, BUFSIZ);
     read_string(buf, cur_pos, os);
     sprintf(rdata, "\"%s\" \"%s\"", cpu, os);
+    free(os);
+    free(cpu);
+
+    return DNS_ERROR_OK;
 }
 
-void read_mx(const uint8_t* buf, const int pos, char* rdata)
+dns_error read_mx(const uint8_t* buf, const int pos, char* rdata)
 {
     uint16_t preference = read_uint16_t(buf + pos);
     sprintf(rdata, "%u", preference);
     strcat(rdata, " ");
-    char* rname;
-    rname = malloc(sizeof(char) * BUFSIZ);
+
+    char* rname = (char*)malloc(sizeof(char) * BUFSIZ);
+    if (rname == NULL) {
+        return DNS_ERROR_OUT_OF_MEMORY;
+    }
+    bzero(rname, BUFSIZ);
+
     read_qname(buf, pos + 2, rname);
     strcat(rdata, rname);
     free(rname);
+
+    return DNS_ERROR_OK;
 }
 
-void read_soa(const uint8_t* buf, const int pos, char* rdata)
+dns_error read_soa(const uint8_t* buf, const int pos, char* rdata)
 {
     int cur_pos = read_qname(buf, pos, rdata);
     strcat(rdata, " ");
+
     char* rname;
     rname = malloc(sizeof(char) * BUFSIZ);
+    if (rname == NULL) {
+        return DNS_ERROR_OUT_OF_MEMORY;
+    }
+
     cur_pos = read_qname(buf, cur_pos, rname);
     strcat(rdata, rname);
     strcat(rdata, " ");
@@ -244,6 +269,9 @@ void read_soa(const uint8_t* buf, const int pos, char* rdata)
         uint32_t item = read_uint32_t(buf + cur_pos);
         char* str_item;
         str_item = malloc(sizeof(char) * BUFSIZ);
+        if (str_item == NULL) {
+            return DNS_ERROR_OUT_OF_MEMORY;
+        }
         sprintf(str_item, "%u", item);
         strcat(rdata, str_item);
         if (i != 4) {
@@ -252,4 +280,6 @@ void read_soa(const uint8_t* buf, const int pos, char* rdata)
         free(str_item);
         cur_pos += 4;
     }
+
+    return DNS_ERROR_OK;
 }
