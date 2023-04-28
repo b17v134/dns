@@ -228,12 +228,17 @@ dns_error read_mx(const uint8_t* buf, const int pos, char* rdata)
     return DNS_ERROR_OK;
 }
 
-void read_soa(const uint8_t* buf, const int pos, char* rdata)
+dns_error read_soa(const uint8_t* buf, const int pos, char* rdata)
 {
     int cur_pos = read_qname(buf, pos, rdata);
     strcat(rdata, " ");
+
     char* rname;
     rname = malloc(sizeof(char) * BUFSIZ);
+    if (rname == NULL) {
+        return DNS_ERROR_OUT_OF_MEMORY;
+    }
+
     cur_pos = read_qname(buf, cur_pos, rname);
     strcat(rdata, rname);
     strcat(rdata, " ");
@@ -242,6 +247,9 @@ void read_soa(const uint8_t* buf, const int pos, char* rdata)
         uint32_t item = read_uint32_t(buf + cur_pos);
         char* str_item;
         str_item = malloc(sizeof(char) * BUFSIZ);
+        if (str_item == NULL) {
+            return DNS_ERROR_OUT_OF_MEMORY;
+        }
         sprintf(str_item, "%u", item);
         strcat(rdata, str_item);
         if (i != 4) {
@@ -250,4 +258,6 @@ void read_soa(const uint8_t* buf, const int pos, char* rdata)
         free(str_item);
         cur_pos += 4;
     }
+
+    return DNS_ERROR_OK;
 }
