@@ -74,14 +74,8 @@ int read_question(const uint8_t* buffer, const int pos, struct question* q)
         perror("Cannot allocate memory");
         return -1;
     }
-    int current_pos = pos;
-    uint8_t length;
-
-    while ((length = *(uint8_t*)(buffer + current_pos))) {
-        strncat(qname, (char*)(buffer + current_pos + 1), length);
-        strcat(qname, ".");
-        current_pos += length + 1;
-    }
+    bzero(qname, BUFSIZ);
+    int current_pos = read_qname(buffer, pos, qname);
 
     char* tmp = (char*)realloc(qname, sizeof(char) * (strlen(qname) + 1));
     if (tmp == NULL) {
@@ -90,9 +84,9 @@ int read_question(const uint8_t* buffer, const int pos, struct question* q)
         return -1;
     }
     q->qname = tmp;
-    q->qtype = read_uint16_t(buffer + current_pos + 1);
-    q->qclass = read_uint16_t(buffer + current_pos + 3);
-    current_pos += 5;
+    q->qtype = read_uint16_t(buffer + current_pos);
+    q->qclass = read_uint16_t(buffer + current_pos + 2);
+    current_pos += 4;
 
     return current_pos;
 }

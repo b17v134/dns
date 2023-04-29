@@ -270,7 +270,6 @@ def Resolv(request: Request)->Response:
     questions = []
     for i in range(0, header["Qdcount"]):
         question:CQuestion = cast(cresponse.question, POINTER(CQuestion))
-        print(question[0].qname.decode('ascii'), question[0].qtype, question[0].qclass) 
         question:Question = Question(
             qname = question[i].qname.decode('ascii'),
             qtype = question[i].qtype,
